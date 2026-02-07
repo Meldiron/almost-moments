@@ -3,6 +3,7 @@
 import { Sora, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { useState, useEffect, createContext, useContext } from "react";
+import { AuthProvider } from "@/lib/auth-context";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -60,7 +61,7 @@ export default function RootLayout({
         className={`${sora.variable} ${dmSans.variable} antialiased ${isDark ? "dark" : ""}`}
       >
         <ThemeContext.Provider value={{ isDark, toggle }}>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </ThemeContext.Provider>
       </body>
     </html>

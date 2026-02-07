@@ -22,7 +22,7 @@ function MagicLinkCallbackContent() {
     account
       .createSession(userId, secret)
       .then(() => {
-        router.replace("/");
+        router.replace("/dashboard");
       })
       .catch((err) => {
         const message =

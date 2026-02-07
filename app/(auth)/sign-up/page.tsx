@@ -47,7 +47,7 @@ export default function SignUpPage() {
     try {
       await account.create(ID.unique(), email, password, name);
       await account.createEmailPasswordSession(email, password);
-      router.push("/");
+      router.push("/dashboard");
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Failed to create account. Please try again.";

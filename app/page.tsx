@@ -3,6 +3,7 @@
 import { useContext, useState, useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { ThemeContext } from "./layout";
+import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -81,6 +82,7 @@ function AnimateIn({
 // ─── Navbar ─────────────────────────────────────────────────────
 function Navbar() {
   const { isDark, toggle } = useContext(ThemeContext);
+  const { user } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -129,9 +131,9 @@ function Navbar() {
             {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
 
-          <Link href="/sign-in">
+          <Link href={user ? "/dashboard" : "/sign-in"}>
             <Button size="sm" className="hidden md:inline-flex rounded-full px-5 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold">
-              Create Gallery
+              {user ? "My Galleries" : "Sign in"}
             </Button>
           </Link>
 
@@ -156,9 +158,9 @@ function Navbar() {
           <a href="#faq" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground py-2">
             FAQ
           </a>
-          <Link href="/sign-in">
+          <Link href={user ? "/dashboard" : "/sign-in"}>
             <Button className="rounded-full bg-lime text-lime-foreground hover:bg-lime/90 font-semibold w-full">
-              Create Gallery
+              {user ? "My Galleries" : "Sign in"}
             </Button>
           </Link>
         </div>
@@ -311,6 +313,7 @@ function GalleryScreen({ gallery }: { gallery: typeof galleries[number] }) {
 }
 
 function Hero() {
+  const { user } = useAuth();
   const [activeGallery, setActiveGallery] = useState(0);
   // "visible" = at rest, "out" = fading out (drifting up), "in" = fading in (rising from below)
   const [floatPhase, setFloatPhase] = useState<"visible" | "out" | "in">("visible");
@@ -365,12 +368,12 @@ function Hero() {
         </p>
 
         <div className="animate-slide-up stagger-4 mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link href="/sign-in">
+          <Link href={user ? "/dashboard" : "/sign-in"}>
             <Button
               size="lg"
               className="rounded-full px-8 h-13 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-semibold shadow-lg shadow-lime/20"
             >
-              Create Your Gallery
+              {user ? "My Galleries" : "Get Started"}
               <ArrowRight className="size-4 ml-1" />
             </Button>
           </Link>
@@ -883,6 +886,7 @@ function FAQ() {
 
 // ─── CTA ─────────────────────────────────────────────────────────
 function CTA() {
+  const { user } = useAuth();
   return (
     <section className="py-28 sm:py-36 relative overflow-hidden">
       <div className="absolute inset-0 bg-white dark:bg-black" />
@@ -912,12 +916,12 @@ function CTA() {
             No credit card, no catch.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/sign-in">
+            <Link href={user ? "/dashboard" : "/sign-in"}>
               <Button
                 size="lg"
                 className="rounded-full px-10 h-14 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-bold shadow-lg shadow-lime/25"
               >
-                Create Your Gallery — It&apos;s Free
+                {user ? "My Galleries" : "Get Started — It\u2019s Free"}
                 <ChevronRight className="size-5 ml-1" />
               </Button>
             </Link>

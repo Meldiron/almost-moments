@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Sun, Moon, Camera, X } from "lucide-react";
 import { ThemeContext } from "../layout";
 import { useContext } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 export default function AuthLayout({
   children,
@@ -11,6 +14,18 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   const { isDark, toggle } = useContext(ThemeContext);
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/dashboard");
+    }
+  }, [user, loading, router]);
+
+  if (loading || user) {
+    return null;
+  }
 
   return (
     <div className="min-h-dvh flex flex-col relative overflow-hidden">
