@@ -13,6 +13,9 @@ importers:
       appwrite:
         specifier: ^22.0.0
         version: 22.0.0
+      blurhash:
+        specifier: ^2.0.5
+        version: 2.0.5
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -25,6 +28,9 @@ importers:
       next:
         specifier: 16.1.6
         version: 16.1.6(@babel/core@7.29.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      node-appwrite:
+        specifier: ^22.0.0
+        version: 22.0.0
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
@@ -37,9 +43,21 @@ importers:
       react-dom:
         specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
+      react-photo-album:
+        specifier: ^3.4.0
+        version: 3.4.0(@types/react@19.2.13)(react@19.2.3)
+      sharp:
+        specifier: ^0.34.5
+        version: 0.34.5
       tailwind-merge:
         specifier: ^3.4.0
         version: 3.4.0
+      yet-another-react-lightbox:
+        specifier: ^3.28.0
+        version: 3.28.0(@types/react-dom@19.2.3(@types/react@19.2.13))(@types/react@19.2.13)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       "@tailwindcss/postcss":
         specifier: ^4
@@ -2507,6 +2525,12 @@ packages:
         integrity: sha512-t/OYhhJ2SD+YGBQcjY8GzzDHEk9f3nerxjtfa6tlMXfe7frs/WozhvCNoGvpM0P3bNf3Gq5ZRMlGr5f3r4/N8A==,
       }
 
+  blurhash@2.0.5:
+    resolution:
+      {
+        integrity: sha512-cRygWd7kGBQO3VEhPiTgq4Wc43ctsM+o46urrmPOiuAe+07fzlSB9OJVdpgDL0jPqXUVQ9ht7aq7kxOeJHRK+w==,
+      }
+
   body-parser@2.2.2:
     resolution:
       {
@@ -4613,6 +4637,12 @@ packages:
       sass:
         optional: true
 
+  node-appwrite@22.0.0:
+    resolution:
+      {
+        integrity: sha512-Oelqm44JUhHN1A7FfJMFXspVc1lUE+gDrGda98BNjkNkBqp3H/jM79nbjYqVx/gbW3zgSiUPPvPfAANY3Wlzeg==,
+      }
+
   node-domexception@1.0.0:
     resolution:
       {
@@ -4620,6 +4650,12 @@ packages:
       }
     engines: { node: ">=10.5.0" }
     deprecated: Use your platform's native DOMException instead
+
+  node-fetch-native-with-agent@1.7.2:
+    resolution:
+      {
+        integrity: sha512-5MaOOCuJEvcckoz7/tjdx1M6OusOY6Xc5f459IaruGStWnKzlI1qpNgaAwmn4LmFYcsSlj+jBMk84wmmRxfk5g==,
+      }
 
   node-fetch@3.3.2:
     resolution:
@@ -5060,6 +5096,19 @@ packages:
       {
         integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==,
       }
+
+  react-photo-album@3.4.0:
+    resolution:
+      {
+        integrity: sha512-pPaCoxEfVDhowpqxECq4SOD5kzP1Uao8PEN11Jasxayv4cZjad3Fy8SlKt6wvtLnVJRtOjsQDU/ZnnUuberwMg==,
+      }
+    engines: { node: ">=18" }
+    peerDependencies:
+      "@types/react": ^18 || ^19
+      react: ^18 || ^19
+    peerDependenciesMeta:
+      "@types/react":
+        optional: true
 
   react-remove-scroll-bar@2.3.8:
     resolution:
@@ -6007,6 +6056,23 @@ packages:
       }
     engines: { node: ">=12" }
 
+  yet-another-react-lightbox@3.28.0:
+    resolution:
+      {
+        integrity: sha512-bHjG1/DS4aWPkKb/6hNp0+zcgjda27wQlXBpJvb9TcblC1U1dY3Ih0pe85O8/ZLz+OIy+ZvLxN2gmsbDW0Q/QQ==,
+      }
+    engines: { node: ">=14" }
+    peerDependencies:
+      "@types/react": ^16 || ^17 || ^18 || ^19
+      "@types/react-dom": ^16 || ^17 || ^18 || ^19
+      react: ^16.8.0 || ^17 || ^18 || ^19
+      react-dom: ^16.8.0 || ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      "@types/react":
+        optional: true
+      "@types/react-dom":
+        optional: true
+
   yocto-queue@0.1.0:
     resolution:
       {
@@ -6363,8 +6429,7 @@ snapshots:
 
   "@humanwhocodes/retry@0.4.3": {}
 
-  "@img/colour@1.0.0":
-    optional: true
+  "@img/colour@1.0.0": {}
 
   "@img/sharp-darwin-arm64@0.34.5":
     optionalDependencies:
@@ -7768,6 +7833,8 @@ snapshots:
 
   bignumber.js@9.0.0: {}
 
+  blurhash@2.0.5: {}
+
   body-parser@2.2.2:
     dependencies:
       bytes: 3.1.2
@@ -9084,7 +9151,14 @@ snapshots:
       - "@babel/core"
       - babel-plugin-macros
 
+  node-appwrite@22.0.0:
+    dependencies:
+      json-bigint: 1.0.0
+      node-fetch-native-with-agent: 1.7.2
+
   node-domexception@1.0.0: {}
+
+  node-fetch-native-with-agent@1.7.2: {}
 
   node-fetch@3.3.2:
     dependencies:
@@ -9396,6 +9470,12 @@ snapshots:
 
   react-is@16.13.1: {}
 
+  react-photo-album@3.4.0(@types/react@19.2.13)(react@19.2.3):
+    dependencies:
+      react: 19.2.3
+    optionalDependencies:
+      "@types/react": 19.2.13
+
   react-remove-scroll-bar@2.3.8(@types/react@19.2.13)(react@19.2.3):
     dependencies:
       react: 19.2.3
@@ -9652,7 +9732,6 @@ snapshots:
       "@img/sharp-win32-arm64": 0.34.5
       "@img/sharp-win32-ia32": 0.34.5
       "@img/sharp-win32-x64": 0.34.5
-    optional: true
 
   shebang-command@2.0.0:
     dependencies:
@@ -10113,6 +10192,14 @@ snapshots:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 21.1.1
+
+  yet-another-react-lightbox@3.28.0(@types/react-dom@19.2.3(@types/react@19.2.13))(@types/react@19.2.13)(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+    optionalDependencies:
+      "@types/react": 19.2.13
+      "@types/react-dom": 19.2.3(@types/react@19.2.13)
 
   yocto-queue@0.1.0: {}
 

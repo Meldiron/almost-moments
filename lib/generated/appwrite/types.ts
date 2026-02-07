@@ -22,11 +22,13 @@ export type GalleryAssetsCreate = {
     | (GalleriesCreate & { $id?: string; $permissions?: string[] })
     | string;
   fileId: string;
+  blurhash: string;
 };
 
 export type GalleryAssets = Models.Row & {
   gallery?: Galleries;
   fileId: string;
+  blurhash: string;
 };
 
 declare const __roleStringBrand: unique symbol;
@@ -264,6 +266,7 @@ export type DatabaseTableMap = {
             | (GalleriesCreate & { $id?: string; $permissions?: string[] })
             | string;
           fileId: string;
+          blurhash: string;
         },
         options?: {
           rowId?: string;
@@ -296,6 +299,7 @@ export type DatabaseTableMap = {
             | (GalleriesCreate & { $id?: string; $permissions?: string[] })
             | string;
           fileId: string;
+          blurhash: string;
         }>,
         options?: {
           permissions?: (

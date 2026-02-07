@@ -124,6 +124,15 @@
           "size": 255,
           "default": null,
           "encrypt": false
+        },
+        {
+          "key": "blurhash",
+          "type": "string",
+          "required": true,
+          "array": false,
+          "size": 255,
+          "default": null,
+          "encrypt": false
         }
       ],
       "indexes": []

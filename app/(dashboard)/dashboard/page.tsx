@@ -523,19 +523,11 @@ export default function DashboardPage() {
     setCreating(true);
     try {
       const expiryAt = computeExpiryDate(duration, customDays);
-      const gallery = await galleriesTable.create(
-        {
-          name: name.trim(),
-          description: description.trim() || null,
-          expiryAt,
-        },
-        {
-          permissions: (permission, role) => [
-            permission.read(role.user(user.$id)),
-            permission.write(role.user(user.$id)),
-          ],
-        },
-      );
+      const gallery = await galleriesTable.create({
+        name: name.trim(),
+        description: description.trim() || null,
+        expiryAt,
+      });
       setGalleries((prev) => [gallery, ...prev]);
       setTotal((prev) => prev + 1);
       setHasAnyGalleries(true);
