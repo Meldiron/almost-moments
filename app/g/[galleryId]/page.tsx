@@ -109,15 +109,12 @@ function GalleryImage({
     <button
       onClick={onClick}
       className="block w-full rounded-xl overflow-hidden cursor-pointer break-inside-avoid relative"
+      style={{ aspectRatio: `${asset.width} / ${asset.height}` }}
     >
       {/* Blurhash placeholder */}
       {!loaded && (
         /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          src={blurhashSrc}
-          alt=""
-          className="w-full h-auto aspect-[4/3] object-cover"
-        />
+        <img src={blurhashSrc} alt="" className="w-full h-full object-cover" />
       )}
       {/* Real image */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -127,7 +124,7 @@ function GalleryImage({
         loading="lazy"
         onLoad={() => setLoaded(true)}
         className={cn(
-          "w-full h-auto rounded-xl transition-opacity duration-300",
+          "w-full h-full object-cover rounded-xl transition-opacity duration-300",
           loaded ? "opacity-100" : "opacity-0 absolute inset-0",
         )}
       />

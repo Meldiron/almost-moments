@@ -11,20 +11,29 @@ const BLURHASH_WIDTH = 32;
 const BLURHASH_COMPONENTS_X = 4;
 const BLURHASH_COMPONENTS_Y = 3;
 
-async function generateBlurhash(buffer: ArrayBuffer): Promise<string> {
-  const { data, info } = await sharp(Buffer.from(buffer))
+type ImageMeta = { blurhash: string; width: number; height: number };
+
+async function extractImageMeta(buffer: ArrayBuffer): Promise<ImageMeta> {
+  const image = sharp(Buffer.from(buffer));
+  const metadata = await image.metadata();
+  const width = metadata.width ?? 800;
+  const height = metadata.height ?? 800;
+
+  const { data, info } = await image
     .resize(BLURHASH_WIDTH, undefined, { fit: "inside" })
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
 
-  return encode(
+  const blurhash = encode(
     new Uint8ClampedArray(data),
     info.width,
     info.height,
     BLURHASH_COMPONENTS_X,
     BLURHASH_COMPONENTS_Y,
   );
+
+  return { blurhash, width, height };
 }
 
 export async function POST(
@@ -102,8 +111,8 @@ export async function POST(
     );
   }
 
-  // 7. Generate blurhash for each file
-  const blurhashes = new Map<string, string>();
+  // 7. Extract blurhash and dimensions for each file
+  const fileMeta = new Map<string, ImageMeta>();
   await Promise.all(
     uniqueFileIds.map(async (fileId) => {
       try {
@@ -111,23 +120,32 @@ export async function POST(
           bucketId: "assets",
           fileId,
         });
-        const hash = await generateBlurhash(buffer);
-        blurhashes.set(fileId, hash);
+        const meta = await extractImageMeta(buffer);
+        fileMeta.set(fileId, meta);
       } catch {
-        // Use a minimal fallback blurhash if generation fails (e.g. for videos)
-        blurhashes.set(fileId, "LEHV6nWB2yk8pyo0adR*.7kCMdnj");
+        // Use a minimal fallback for files where extraction fails (e.g. videos)
+        fileMeta.set(fileId, {
+          blurhash: "LEHV6nWB2yk8pyo0adR*.7kCMdnj",
+          width: 800,
+          height: 800,
+        });
       }
     }),
   );
 
   // 8. Create gallery-asset rows in chunks of 100
   const CHUNK_SIZE = 100;
-  const rows = uniqueFileIds.map((fileId) => ({
-    $id: ID.unique(),
-    fileId,
-    blurhash: blurhashes.get(fileId)!,
-    galleryId: galleryId,
-  }));
+  const rows = uniqueFileIds.map((fileId) => {
+    const meta = fileMeta.get(fileId)!;
+    return {
+      $id: ID.unique(),
+      fileId,
+      blurhash: meta.blurhash,
+      width: meta.width,
+      height: meta.height,
+      galleryId: galleryId,
+    };
+  });
 
   for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
     const chunk = rows.slice(i, i + CHUNK_SIZE);

@@ -18,12 +18,16 @@ export type GalleryAssetsCreate = {
   fileId: string;
   blurhash: string;
   galleryId: string;
+  width: number;
+  height: number;
 };
 
 export type GalleryAssets = Models.Row & {
   fileId: string;
   blurhash: string;
   galleryId: string;
+  width: number;
+  height: number;
 };
 
 declare const __roleStringBrand: unique symbol;
