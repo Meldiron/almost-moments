@@ -163,19 +163,187 @@ function Navbar() {
 }
 
 // ─── Hero ───────────────────────────────────────────────────────
+const galleries = [
+  {
+    emoji: "💒",
+    label: "Wedding",
+    date: "June 15, 2026",
+    title: "Sarah & Tom's Wedding",
+    stats: "247 photos by 58 guests",
+    photos: [
+      "photo-1519741497674-611481863552",
+      "photo-1606216794074-735e91aa2c92",
+      "photo-1583939003579-730e3918a45a",
+      "photo-1511285560929-80b456fea0bc",
+      "photo-1465495976277-4387d4b0b4c6",
+      "photo-1460978812857-470ed1c77af0",
+      "photo-1532712938310-34cb3982ef74",
+      "photo-1507504031003-b417219a0fde",
+      "photo-1522673607200-164d1b6ce486",
+      "photo-1544078751-58fee2d8a03b",
+      "photo-1470290378698-263fa7ca60ab",
+      "photo-1587271407850-8d438ca9fdf2",
+    ],
+    floatIcon: <Heart className="size-5 text-coral" />,
+    floatBg: "bg-coral/20",
+    floatText: "+24 photos",
+    floatSub: "just uploaded",
+    guestCount: "58 guests",
+    leftCardTop: 72,    // px from top
+    rightCardBottom: 96, // px from bottom
+  },
+  {
+    emoji: "🎂",
+    label: "Birthday",
+    date: "March 22, 2026",
+    title: "Marco's 30th Birthday",
+    stats: "183 photos by 34 guests",
+    photos: [
+      "photo-1530103862676-de8c9debad1d",
+      "photo-1464349153159-4a4e48e8f2fa",
+      "photo-1513151233558-d860c5398176",
+      "photo-1504196606672-aef5c9cefc92",
+      "photo-1527529482837-4698179dc6ce",
+      "photo-1602631985686-1bb0e6a8696e",
+      "photo-1558636508-e0db3814bd1d",
+      "photo-1496843916299-590492c751f4",
+      "photo-1519671482749-fd09be7ccebf",
+      "photo-1533174072545-7a4b6ad7a6c3",
+      "photo-1551024709-8f23befc6f87",
+      "photo-1485872299829-c44036b508af",
+    ],
+    floatIcon: <PartyPopper className="size-5 text-amber" />,
+    floatBg: "bg-amber/20",
+    floatText: "+12 photos",
+    floatSub: "just uploaded",
+    guestCount: "34 guests",
+    leftCardTop: 140,
+    rightCardBottom: 140,
+  },
+  {
+    emoji: "🏢",
+    label: "Corporate",
+    date: "Jan 10, 2026",
+    title: "TechCorp Annual Summit",
+    stats: "312 photos by 95 guests",
+    photos: [
+      "photo-1540575467063-178a50c2df87",
+      "photo-1505373877841-8d25f7d46678",
+      "photo-1475721027785-f74eccf877e2",
+      "photo-1591115765373-5207764f72e7",
+      "photo-1556761175-5973dc0f32e7",
+      "photo-1528605248644-14dd04022da1",
+      "photo-1515187029135-18ee286d815b",
+      "photo-1523580494863-6f3031224c94",
+      "photo-1559223607-a43c990c692c",
+      "photo-1577962917302-cd874c4e31d2",
+      "photo-1558403194-611308249627",
+      "photo-1531058020387-3be344556be6",
+    ],
+    floatIcon: <Zap className="size-5 text-sky" />,
+    floatBg: "bg-sky/20",
+    floatText: "+41 photos",
+    floatSub: "just uploaded",
+    guestCount: "95 guests",
+    leftCardTop: 48,
+    rightCardBottom: 64,
+  },
+  {
+    emoji: "📚",
+    label: "Book Club",
+    date: "Feb 5, 2026",
+    title: "Downtown Book Reading",
+    stats: "86 photos by 22 guests",
+    photos: [
+      "photo-1481627834876-b7833e8f5570",
+      "photo-1524995997946-a1c2e315a42f",
+      "photo-1512820790803-83ca734da794",
+      "photo-1507003211169-0a1dd7228f2d",
+      "photo-1456513080510-7bf3a84b82f8",
+      "photo-1519682337058-a94d519337bc",
+      "photo-1495446815901-a7297e633e8d",
+      "photo-1491841573634-28140fc7ced7",
+      "photo-1529007196863-d07650a3f0ea",
+      "photo-1506880018603-83d5b814b5a6",
+      "photo-1497633762265-9d179a990aa6",
+      "photo-1532012197267-da84d127e765",
+    ],
+    floatIcon: <Sparkles className="size-5 text-violet" />,
+    floatBg: "bg-violet/20",
+    floatText: "+8 photos",
+    floatSub: "just uploaded",
+    guestCount: "22 guests",
+    leftCardTop: 180,
+    rightCardBottom: 48,
+  },
+];
+
+function GalleryScreen({ gallery }: { gallery: typeof galleries[number] }) {
+  return (
+    <div className="w-full flex-shrink-0 flex flex-col">
+      {/* Gallery header */}
+      <div className="px-4 pt-3 pb-4">
+        <div className="text-left">
+          <p className="text-xs text-muted-foreground font-medium">{gallery.date}</p>
+          <h3 className="font-sans font-bold text-base mt-0.5">{gallery.title}</h3>
+          <p className="text-xs text-muted-foreground mt-1">{gallery.stats}</p>
+        </div>
+      </div>
+      {/* Photo grid */}
+      <div className="flex-1 px-3 pb-3 grid grid-cols-3 gap-1.5 auto-rows-min">
+        {gallery.photos.map((id, i) => (
+          <div key={i} className="rounded-lg aspect-square overflow-hidden">
+            <img
+              src={`https://images.unsplash.com/${id}?w=100&h=100&fit=crop&q=60`}
+              alt={`${gallery.label} photo`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Hero() {
+  const [activeGallery, setActiveGallery] = useState(0);
+  // "visible" = at rest, "out" = fading out (drifting up), "in" = fading in (rising from below)
+  const [floatPhase, setFloatPhase] = useState<"visible" | "out" | "in">("visible");
+  const [floatGallery, setFloatGallery] = useState(0);
+  const gallery = galleries[activeGallery];
+  const floatData = galleries[floatGallery];
+
+  const handleSwitch = (index: number) => {
+    if (index === activeGallery) return;
+    setActiveGallery(index);
+    // Fade out (drift up)
+    setFloatPhase("out");
+    setTimeout(() => {
+      // Swap data, start in "in" phase (starts below, no transition yet)
+      setFloatGallery(index);
+      setFloatPhase("in");
+      // Next frame: transition to visible (rises up into place)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setFloatPhase("visible");
+        });
+      });
+    }, 250);
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-      {/* Decorative blobs */}
-      <div className="absolute top-20 left-10 size-72 rounded-full bg-lime/10 blur-3xl" />
-      <div className="absolute bottom-20 right-10 size-96 rounded-full bg-coral/8 blur-3xl" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[600px] rounded-full bg-sky/5 blur-3xl" />
+      {/* Dot pattern background — fades out toward center */}
+      <div
+        className="absolute inset-0 pattern-dots-lime"
+        style={{ maskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%)", WebkitMaskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%)" }}
+      />
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
         <div className="animate-slide-up">
-          <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm font-medium rounded-full border border-border">
+          <Badge variant="secondary" className="mb-6 mt-4 px-4 py-1.5 text-sm font-medium rounded-full border border-border">
             <Sparkles className="size-3.5 mr-1.5 text-amber" />
-            Free for everyone
+            Version 1.0.0 is live!
           </Badge>
         </div>
 
@@ -187,12 +355,11 @@ function Hero() {
           One gallery.
         </h1>
 
-        <p className="animate-slide-up stagger-2 mt-6 sm:mt-8 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Create a shared photo gallery for your event. Guests scan a QR code,
-          upload their pics — no app, no sign-up. All your memories in one place.
+        <p className="animate-slide-up stagger-2 mt-12 sm:mt-12 text-xl sm:text-2xl text-foreground font-medium italic max-w-2xl mx-auto">
+          &ldquo;Collect moments that almost slipped away&rdquo;
         </p>
 
-        <div className="animate-slide-up stagger-3 mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="animate-slide-up stagger-4 mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button
             size="lg"
             className="rounded-full px-8 h-13 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-semibold shadow-lg shadow-lime/20"
@@ -209,7 +376,7 @@ function Hero() {
           </Button>
         </div>
 
-        <div className="animate-slide-up stagger-4 mt-12 flex items-center justify-center gap-6 text-sm text-muted-foreground">
+        <div className="animate-slide-up stagger-5 mt-12 flex items-center justify-center gap-6 text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Check className="size-4 text-lime" /> No app needed
           </span>
@@ -222,7 +389,7 @@ function Hero() {
         </div>
 
         {/* Phone mockup area */}
-        <div className="animate-scale-in stagger-5 mt-16 sm:mt-20 relative mx-auto max-w-3xl">
+        <div className="animate-scale-in stagger-6 mt-16 sm:mt-20 relative mx-auto max-w-3xl">
           <div className="relative mx-auto w-64 sm:w-72">
             {/* Phone frame */}
             <div className="rounded-[2.5rem] border-4 border-foreground/15 bg-card p-3 shadow-2xl">
@@ -233,58 +400,80 @@ function Hero() {
                   <div className="w-20 h-5 rounded-full bg-foreground/10" />
                   <span>100%</span>
                 </div>
-                {/* Gallery header */}
-                <div className="px-4 pt-3 pb-4">
-                  <div className="text-left">
-                    <p className="text-xs text-muted-foreground font-medium">June 15, 2026</p>
-                    <h3 className="font-sans font-bold text-base mt-0.5">Sarah & Tom's Wedding</h3>
-                    <p className="text-xs text-muted-foreground mt-1">247 photos by 58 guests</p>
+                {/* Sliding gallery screens */}
+                <div className="flex-1 overflow-hidden relative">
+                  <div
+                    className="flex h-full transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+                    style={{ transform: `translateX(-${activeGallery * 100}%)` }}
+                  >
+                    {galleries.map((g, i) => (
+                      <GalleryScreen key={i} gallery={g} />
+                    ))}
                   </div>
                 </div>
-                {/* Photo grid */}
-                <div className="flex-1 px-3 pb-3 grid grid-cols-3 gap-1.5 auto-rows-min">
-                  {[
-                    "bg-coral/40", "bg-sky/40", "bg-lime/40",
-                    "bg-amber/40", "bg-violet/40", "bg-coral/30",
-                    "bg-sky/30", "bg-lime/30", "bg-amber/30",
-                    "bg-violet/30", "bg-coral/20", "bg-sky/20",
-                  ].map((color, i) => (
-                    <div
-                      key={i}
-                      className={`${color} rounded-lg aspect-square flex items-center justify-center`}
-                    >
-                      <Camera className="size-4 text-foreground/20" />
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
 
-            {/* Floating cards */}
-            <div className="absolute -left-20 sm:-left-28 top-16 animate-float">
+            {/* Floating card — left side */}
+            <div
+              className="absolute -left-20 sm:-left-28 animate-float"
+              style={{
+                top: floatData.leftCardTop,
+                opacity: floatPhase === "visible" ? 1 : 0,
+                transform: floatPhase === "out" ? "translateY(-14px)" : floatPhase === "in" ? "translateY(14px)" : "translateY(0)",
+                transition: floatPhase === "in" ? "none" : "opacity 250ms ease-out, transform 250ms ease-out",
+              }}
+            >
               <div className="rounded-2xl bg-card border border-border px-4 py-3 shadow-xl flex items-center gap-3">
-                <div className="size-10 rounded-full bg-coral/20 flex items-center justify-center">
-                  <Heart className="size-5 text-coral" />
+                <div className={`size-10 rounded-full ${floatData.floatBg} flex items-center justify-center`}>
+                  {floatData.floatIcon}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">+24 photos</p>
-                  <p className="text-xs text-muted-foreground">just uploaded</p>
+                  <p className="text-sm font-semibold">{floatData.floatText}</p>
+                  <p className="text-xs text-muted-foreground">{floatData.floatSub}</p>
                 </div>
               </div>
             </div>
 
-            <div className="absolute -right-16 sm:-right-24 bottom-24 animate-float-delayed">
+            {/* Floating card — right side */}
+            <div
+              className="absolute -right-16 sm:-right-24 animate-float-delayed"
+              style={{
+                bottom: floatData.rightCardBottom,
+                opacity: floatPhase === "visible" ? 1 : 0,
+                transform: floatPhase === "out" ? "translateY(-14px)" : floatPhase === "in" ? "translateY(14px)" : "translateY(0)",
+                transition: floatPhase === "in" ? "none" : "opacity 250ms ease-out, transform 250ms ease-out",
+              }}
+            >
               <div className="rounded-2xl bg-card border border-border px-4 py-3 shadow-xl flex items-center gap-3">
                 <div className="size-10 rounded-full bg-lime/20 flex items-center justify-center">
                   <Users className="size-5 text-lime" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">58 guests</p>
+                  <p className="text-sm font-semibold">{floatData.guestCount}</p>
                   <p className="text-xs text-muted-foreground">contributing</p>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Gallery type chips — below phone */}
+        <div className="animate-slide-up stagger-6 mt-10 flex items-center justify-center gap-2 flex-wrap">
+          {galleries.map((g, i) => (
+            <button
+              key={g.label}
+              onClick={() => handleSwitch(i)}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                activeGallery === i
+                  ? "bg-foreground text-background shadow-lg scale-105"
+                  : "bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground"
+              }`}
+            >
+              <span className="mr-1.5">{g.emoji}</span>
+              {g.label}
+            </button>
+          ))}
         </div>
       </div>
     </section>
@@ -295,41 +484,64 @@ function Hero() {
 function HowItWorks() {
   const steps = [
     {
-      icon: <PartyPopper className="size-7" />,
+      icon: <PartyPopper className="size-9" />,
       title: "Create a gallery",
       description: "Give your event a name and get a unique gallery link and QR code in seconds.",
-      color: "bg-lime/15 text-lime",
+      bgClass: "bg-lime/15",
+      textClass: "text-lime",
+      borderClass: "border-lime/30",
+      dotClass: "bg-lime",
       number: "01",
     },
     {
-      icon: <QrCode className="size-7" />,
+      icon: <QrCode className="size-9" />,
       title: "Share the QR code",
       description: "Print it, display it, or send the link. Place it where guests can easily scan.",
-      color: "bg-sky/15 text-sky",
+      bgClass: "bg-sky/15",
+      textClass: "text-sky",
+      borderClass: "border-sky/30",
+      dotClass: "bg-sky",
       number: "02",
     },
     {
-      icon: <Upload className="size-7" />,
+      icon: <Upload className="size-9" />,
       title: "Guests upload photos",
       description: "No app, no account. Guests open the link and upload straight from their phone.",
-      color: "bg-coral/15 text-coral",
+      bgClass: "bg-coral/15",
+      textClass: "text-coral",
+      borderClass: "border-coral/30",
+      dotClass: "bg-coral",
       number: "03",
     },
     {
-      icon: <Images className="size-7" />,
+      icon: <Images className="size-9" />,
       title: "Enjoy every moment",
       description: "All photos and videos from every guest — together in one beautiful gallery.",
-      color: "bg-amber/15 text-amber",
+      bgClass: "bg-amber/15",
+      textClass: "text-amber",
+      borderClass: "border-amber/30",
+      dotClass: "bg-amber",
       number: "04",
     },
   ];
 
   return (
-    <section id="how-it-works" className="py-28 sm:py-36 relative">
-      <div className="mx-auto max-w-6xl px-6">
-        <AnimateIn className="text-center mb-16 sm:mb-20">
+    <section id="how-it-works" className="py-28 sm:py-36 relative overflow-hidden">
+      {/* Dot pattern background — fades out toward center and bottom */}
+      <div
+        className="absolute inset-0 pattern-dots-lime"
+        style={{
+          maskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, black 60%, transparent 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, black 60%, transparent 100%)",
+          maskComposite: "intersect",
+          WebkitMaskComposite: "destination-in",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-5xl px-6">
+        <AnimateIn className="text-center mb-20 sm:mb-28">
           <Badge variant="secondary" className="mb-4 rounded-full px-4 py-1.5 text-sm border border-border">
-            Simple as 1-2-3-4
+            Quick and simple
           </Badge>
           <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
             How it works
@@ -339,27 +551,53 @@ function HowItWorks() {
           </p>
         </AnimateIn>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {steps.map((step, i) => (
-            <AnimateIn
-              key={step.number}
-              animation="animate-slide-up"
-              delay={`stagger-${i + 1}`}
-            >
-              <div className="group relative rounded-3xl bg-card border border-border p-7 hover:border-foreground/20 transition-all hover:-translate-y-1 hover:shadow-lg h-full">
-                <span className="absolute top-6 right-6 font-sans text-4xl font-extrabold text-foreground/5">
-                  {step.number}
-                </span>
-                <div className={`size-14 rounded-2xl ${step.color} flex items-center justify-center mb-5`}>
-                  {step.icon}
-                </div>
-                <h3 className="font-sans text-xl font-bold mb-2">{step.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-            </AnimateIn>
-          ))}
+        {/* Timeline */}
+        <div className="relative">
+          {/* Vertical line */}
+          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-border -translate-x-1/2" />
+
+          <div className="space-y-16 sm:space-y-24">
+            {steps.map((step, i) => {
+              const isRight = i % 2 === 1;
+              return (
+                <AnimateIn
+                  key={step.number}
+                  animation={isRight ? "animate-slide-in-right" : "animate-slide-in-left"}
+                  delay={`stagger-${i + 1}`}
+                >
+                  <div className={`flex flex-col md:flex-row items-center gap-8 ${isRight ? "md:flex-row-reverse" : ""}`}>
+                    {/* Content card */}
+                    <div className="flex-1 w-full">
+                      <div className="relative rounded-3xl bg-card border border-border p-8 sm:p-10">
+                        {/* Large background number */}
+                        <span className={`absolute top-6 right-8 font-sans text-7xl sm:text-8xl font-black ${step.textClass} opacity-[0.07] select-none`}>
+                          {step.number}
+                        </span>
+
+                        <div className="relative">
+                          <div className={`size-16 sm:size-20 rounded-2xl ${step.bgClass} flex items-center justify-center mb-6`}>
+                            <div className={step.textClass}>{step.icon}</div>
+                          </div>
+                          <h3 className="font-sans text-2xl sm:text-3xl font-bold mb-3">{step.title}</h3>
+                          <p className="text-muted-foreground text-base sm:text-lg leading-relaxed max-w-md">
+                            {step.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Timeline node */}
+                    <div className="hidden md:flex items-center justify-center shrink-0">
+                      <div className={`size-4 rounded-full ${step.dotClass} shadow-lg ring-4 ring-background`} />
+                    </div>
+
+                    {/* Spacer */}
+                    <div className="flex-1 hidden md:block" />
+                  </div>
+                </AnimateIn>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
@@ -369,9 +607,9 @@ function HowItWorks() {
 // ─── Features ───────────────────────────────────────────────────
 function Features() {
   return (
-    <section id="features" className="py-28 sm:py-36 relative">
+    <section id="features" className="py-16 sm:py-28 relative">
       {/* Lime section */}
-      <div className="absolute inset-0 bg-lime/5" />
+      <div className="absolute inset-0 bg-white dark:bg-black" />
 
       <div className="relative mx-auto max-w-6xl px-6">
         <AnimateIn className="text-center mb-16 sm:mb-20">
@@ -389,7 +627,7 @@ function Features() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Large feature card */}
           <AnimateIn animation="animate-slide-in-left" className="lg:col-span-2">
-            <div className="rounded-3xl bg-card border border-border p-8 sm:p-10 h-full flex flex-col justify-between hover:border-foreground/20 transition-all">
+            <div className="rounded-3xl bg-card border border-border p-8 sm:p-10 h-full flex flex-col justify-between ">
               <div>
                 <div className="size-14 rounded-2xl bg-lime/15 flex items-center justify-center mb-6">
                   <Smartphone className="size-7 text-lime" />
@@ -417,7 +655,7 @@ function Features() {
           </AnimateIn>
 
           <AnimateIn animation="animate-slide-in-right">
-            <div className="rounded-3xl bg-card border border-border p-8 h-full hover:border-foreground/20 transition-all">
+            <div className="rounded-3xl bg-card border border-border p-8 h-full ">
               <div className="size-14 rounded-2xl bg-coral/15 flex items-center justify-center mb-6">
                 <QrCode className="size-7 text-coral" />
               </div>
@@ -432,7 +670,7 @@ function Features() {
           </AnimateIn>
 
           <AnimateIn animation="animate-slide-up" delay="stagger-1">
-            <div className="rounded-3xl bg-card border border-border p-8 h-full hover:border-foreground/20 transition-all">
+            <div className="rounded-3xl bg-card border border-border p-8 h-full ">
               <div className="size-14 rounded-2xl bg-sky/15 flex items-center justify-center mb-6">
                 <Zap className="size-7 text-sky" />
               </div>
@@ -447,7 +685,7 @@ function Features() {
           </AnimateIn>
 
           <AnimateIn animation="animate-slide-up" delay="stagger-2">
-            <div className="rounded-3xl bg-card border border-border p-8 h-full hover:border-foreground/20 transition-all">
+            <div className="rounded-3xl bg-card border border-border p-8 h-full ">
               <div className="size-14 rounded-2xl bg-amber/15 flex items-center justify-center mb-6">
                 <Images className="size-7 text-amber" />
               </div>
@@ -462,7 +700,7 @@ function Features() {
           </AnimateIn>
 
           <AnimateIn animation="animate-slide-up" delay="stagger-3">
-            <div className="rounded-3xl bg-card border border-border p-8 h-full hover:border-foreground/20 transition-all">
+            <div className="rounded-3xl bg-card border border-border p-8 h-full ">
               <div className="size-14 rounded-2xl bg-violet/15 flex items-center justify-center mb-6">
                 <Shield className="size-7 text-violet" />
               </div>
@@ -481,175 +719,22 @@ function Features() {
   );
 }
 
-// ─── Use Cases / Events ─────────────────────────────────────────
-function UseCases() {
-  const events = [
-    {
-      emoji: "💒",
-      name: "Weddings",
-      description: "Collect every angle of your special day from all your guests",
-      color: "bg-coral",
-    },
-    {
-      emoji: "🎂",
-      name: "Birthdays",
-      description: "No more chasing friends for their photos weeks after the party",
-      color: "bg-amber",
-    },
-    {
-      emoji: "🎓",
-      name: "Graduations",
-      description: "Parents, friends, and classmates all contributing to one collection",
-      color: "bg-sky",
-    },
-    {
-      emoji: "🏢",
-      name: "Corporate Events",
-      description: "Team offsites, holiday parties, conferences — all documented",
-      color: "bg-violet",
-    },
-    {
-      emoji: "🎄",
-      name: "Holiday Parties",
-      description: "Family reunions and holiday get-togethers, beautifully captured",
-      color: "bg-lime",
-    },
-    {
-      emoji: "🎵",
-      name: "Concerts & Festivals",
-      description: "Crowd-sourced memories from the best night of your life",
-      color: "bg-coral",
-    },
-  ];
-
-  return (
-    <section className="py-28 sm:py-36 relative">
-      <div className="mx-auto max-w-6xl px-6">
-        <AnimateIn className="text-center mb-16 sm:mb-20">
-          <Badge variant="secondary" className="mb-4 rounded-full px-4 py-1.5 text-sm border border-border">
-            For every occasion
-          </Badge>
-          <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
-            Perfect for <span className="text-coral">any event</span>
-          </h2>
-        </AnimateIn>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {events.map((event, i) => (
-            <AnimateIn
-              key={event.name}
-              animation="animate-scale-in"
-              delay={`stagger-${(i % 6) + 1}`}
-            >
-              <div className="group rounded-3xl bg-card border border-border p-7 hover:border-foreground/20 transition-all hover:-translate-y-1 hover:shadow-lg cursor-default">
-                <div className="flex items-start gap-4">
-                  <span className="text-4xl">{event.emoji}</span>
-                  <div>
-                    <h3 className="font-sans text-lg font-bold mb-1">{event.name}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {event.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </AnimateIn>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── Social Proof / Stats ───────────────────────────────────────
-function SocialProof() {
-  return (
-    <section className="py-28 sm:py-36 relative overflow-hidden">
-      <div className="absolute inset-0 bg-sky/5" />
-
-      <div className="relative mx-auto max-w-6xl px-6">
-        <AnimateIn className="text-center mb-16">
-          <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
-            Moments <span className="text-sky">captured</span>
-          </h2>
-        </AnimateIn>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
-          {[
-            { number: "10K+", label: "Galleries created", icon: <Images className="size-5" /> },
-            { number: "500K+", label: "Photos shared", icon: <Camera className="size-5" /> },
-            { number: "100K+", label: "Happy guests", icon: <Users className="size-5" /> },
-            { number: "4.9", label: "Average rating", icon: <Star className="size-5" /> },
-          ].map((stat, i) => (
-            <AnimateIn
-              key={stat.label}
-              animation="animate-slide-up"
-              delay={`stagger-${i + 1}`}
-            >
-              <div className="text-center p-6 rounded-3xl bg-card border border-border">
-                <div className="inline-flex size-12 rounded-2xl bg-sky/15 items-center justify-center text-sky mb-4">
-                  {stat.icon}
-                </div>
-                <div className="font-sans text-3xl sm:text-4xl font-extrabold tracking-tight">
-                  {stat.number}
-                </div>
-                <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
-              </div>
-            </AnimateIn>
-          ))}
-        </div>
-
-        {/* Testimonials */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              quote: "We got 400+ photos from our wedding guests. Would have lost most of these memories without Almost Moments!",
-              name: "Sarah & Tom",
-              event: "Wedding, June 2026",
-              color: "border-l-coral",
-            },
-            {
-              quote: "Set it up in 30 seconds before my birthday party. Guests loved how easy it was — just scan and upload.",
-              name: "Marco R.",
-              event: "30th Birthday",
-              color: "border-l-lime",
-            },
-            {
-              quote: "We use it for every company event now. No more emailing 'please share your photos' to the whole team.",
-              name: "Lisa K.",
-              event: "Head of Events, TechCorp",
-              color: "border-l-sky",
-            },
-          ].map((testimonial, i) => (
-            <AnimateIn
-              key={i}
-              animation="animate-slide-up"
-              delay={`stagger-${i + 2}`}
-            >
-              <div className={`rounded-2xl bg-card border border-border p-7 border-l-4 ${testimonial.color} h-full flex flex-col`}>
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="size-4 fill-amber text-amber" />
-                  ))}
-                </div>
-                <p className="text-sm leading-relaxed flex-1">"{testimonial.quote}"</p>
-                <div className="mt-5 pt-4 border-t border-border">
-                  <p className="font-semibold text-sm">{testimonial.name}</p>
-                  <p className="text-xs text-muted-foreground">{testimonial.event}</p>
-                </div>
-              </div>
-            </AnimateIn>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ─── Comparison ─────────────────────────────────────────────────
 function Comparison() {
   return (
-    <section className="py-28 sm:py-36 relative">
-      <div className="mx-auto max-w-4xl px-6">
+    <section className="py-28 sm:py-36 relative overflow-hidden">
+      {/* Dot pattern background — fades out toward center, top and bottom */}
+      <div
+        className="absolute inset-0 pattern-dots-lime"
+        style={{
+          maskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 65%, transparent 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 65%, transparent 100%)",
+          maskComposite: "intersect",
+          WebkitMaskComposite: "destination-in",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-4xl px-6">
         <AnimateIn className="text-center mb-16">
           <h2 className="font-sans text-4xl sm:text-5xl font-extrabold tracking-tight">
             Why not just use{" "}
@@ -663,41 +748,61 @@ function Comparison() {
           </p>
         </AnimateIn>
 
-        <AnimateIn animation="animate-scale-in">
-          <div className="rounded-3xl border border-border overflow-hidden">
-            <div className="grid grid-cols-3 font-sans text-sm font-semibold bg-secondary">
-              <div className="p-5" />
-              <div className="p-5 text-center text-muted-foreground">Shared Drive</div>
-              <div className="p-5 text-center text-lime">Almost Moments</div>
-            </div>
-            {[
-              { feature: "No app needed", drive: false, am: true },
-              { feature: "No account needed", drive: false, am: true },
-              { feature: "QR code sharing", drive: false, am: true },
-              { feature: "Beautiful gallery", drive: false, am: true },
-              { feature: "Mobile optimized", drive: false, am: true },
-              { feature: "Setup in seconds", drive: false, am: true },
-              { feature: "Free", drive: true, am: true },
-            ].map((row) => (
-              <div
-                key={row.feature}
-                className="grid grid-cols-3 border-t border-border text-sm"
-              >
-                <div className="p-4 sm:p-5 font-medium">{row.feature}</div>
-                <div className="p-4 sm:p-5 text-center">
-                  {row.drive ? (
-                    <Check className="size-5 text-lime mx-auto" />
-                  ) : (
-                    <X className="size-5 text-muted-foreground/40 mx-auto" />
-                  )}
-                </div>
-                <div className="p-4 sm:p-5 text-center">
-                  <Check className="size-5 text-lime mx-auto" />
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Shared Drive card */}
+          <AnimateIn animation="animate-slide-in-left">
+            <div className="rounded-3xl bg-card border border-border p-8 sm:p-10 h-full opacity-60">
+              <h3 className="font-sans text-xl font-bold mb-2 text-muted-foreground">Google Drive</h3>
+              <p className="text-sm text-muted-foreground/60 mb-8">The old way</p>
+              <div className="space-y-5">
+                {[
+                  { feature: "Free to use", has: true },
+                  { feature: "Optimized or mobile", has: true },
+                  { feature: "One click export", has: true },
+                  { feature: "No app installation", has: false },
+                  { feature: "No account for guests", has: false },
+                  { feature: "QR code sharing", has: false },
+                  { feature: "Live photo feed", has: false },
+                ].map((row) => (
+                  <div key={row.feature} className="flex items-center gap-3">
+                    {row.has ? (
+                      <Check className="size-5 text-lime shrink-0" />
+                    ) : (
+                      <X className="size-5 text-muted-foreground/30 shrink-0" />
+                    )}
+                    <span className={`text-sm ${row.has ? "text-foreground" : "text-muted-foreground/50 line-through"}`}>
+                      {row.feature}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </AnimateIn>
+            </div>
+          </AnimateIn>
+
+          {/* Almost Moments card */}
+          <AnimateIn animation="animate-slide-in-right">
+            <div className="rounded-3xl bg-card border-2 border-lime/30 p-8 sm:p-10 h-full shadow-xl">
+              <h3 className="font-sans text-xl font-bold mb-2 text-lime">Almost Moments</h3>
+              <p className="text-sm text-muted-foreground mb-8">Built for events</p>
+              <div className="space-y-5">
+                {[
+                  "Free to use",
+                  "Optimized or mobile",
+                  "One click export",
+                  "No app installation",
+                  "No account for guests",
+                  "QR code sharing",
+                  "Live photo feed",
+                ].map((feature) => (
+                  <div key={feature} className="flex items-center gap-3">
+                    <Check className="size-5 text-lime shrink-0" />
+                    <span className="text-sm font-medium">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </AnimateIn>
+        </div>
       </div>
     </section>
   );
@@ -738,15 +843,15 @@ function FAQ() {
 
   return (
     <section id="faq" className="py-28 sm:py-36 relative">
-      <div className="absolute inset-0 bg-amber/5" />
+      <div className="absolute inset-0 bg-white dark:bg-black" />
 
       <div className="relative mx-auto max-w-3xl px-6">
         <AnimateIn className="text-center mb-16">
           <Badge variant="secondary" className="mb-4 rounded-full px-4 py-1.5 text-sm border border-border">
-            Got questions?
+            Still not sure?
           </Badge>
           <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
-            FAQ
+            Frequently asked questions
           </h2>
         </AnimateIn>
 
@@ -773,14 +878,22 @@ function FAQ() {
 function CTA() {
   return (
     <section className="py-28 sm:py-36 relative overflow-hidden">
-      <div className="absolute inset-0 bg-lime/8" />
-      <div className="absolute top-10 right-0 size-96 rounded-full bg-lime/10 blur-3xl -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 size-72 rounded-full bg-sky/8 blur-3xl translate-y-1/2 -translate-x-1/2" />
+      <div className="absolute inset-0 bg-white dark:bg-black" />
+      {/* Dot pattern background — fades out toward center and top */}
+      <div
+        className="absolute inset-0 pattern-dots-lime"
+        style={{
+          maskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 100%)",
+          maskComposite: "intersect",
+          WebkitMaskComposite: "destination-in",
+        }}
+      />
 
       <div className="relative mx-auto max-w-4xl px-6 text-center">
         <AnimateIn>
           <div className="inline-flex mb-6">
-            <span className="text-6xl animate-wiggle inline-block">📸</span>
+            <span className="text-6xl inline-block">📸</span>
           </div>
           <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
             Ready to capture{" "}
@@ -825,7 +938,7 @@ function Footer() {
               </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-              Bringing scattered memories together. One event, one gallery, every moment.
+              Bringing scattered memories together. One event, one gallery, all the moment.
             </p>
           </div>
 
@@ -880,8 +993,6 @@ export default function Home() {
       <Hero />
       <HowItWorks />
       <Features />
-      <UseCases />
-      <SocialProof />
       <Comparison />
       <FAQ />
       <CTA />

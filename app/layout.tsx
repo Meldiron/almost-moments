@@ -39,8 +39,10 @@ export default function RootLayout({
 
   useEffect(() => {
     const stored = localStorage.getItem("almost-moments-theme");
-    if (stored === "light") {
-      setIsDark(false);
+    if (stored) {
+      setIsDark(stored === "dark");
+    } else {
+      setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
     }
   }, []);
 

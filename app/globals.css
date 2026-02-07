@@ -100,6 +100,7 @@
   --amber-foreground: #451a03;
   --violet-accent: #a78bfa;
   --violet-foreground: #1e1045;
+  --pattern-color: rgba(0, 0, 0, 0.3);
 }
 
 .dark {
@@ -144,6 +145,11 @@
   --amber-foreground: #451a03;
   --violet-accent: #a78bfa;
   --violet-foreground: #f5f3ff;
+  --pattern-color: rgba(255, 255, 255, 0.2);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 @layer base {
@@ -208,3 +214,23 @@
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
 .stagger-6 { animation-delay: 0.6s; }
+
+/* ─── Background patterns ──────────────────────────────────────── */
+.pattern-dots-lime {
+  background-image: radial-gradient(circle, var(--pattern-color) 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+}
+.pattern-crosses-amber {
+  background-image:
+    linear-gradient(var(--pattern-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pattern-color) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+.pattern-grid-lime {
+  background-image:
+    linear-gradient(var(--pattern-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pattern-color) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+
