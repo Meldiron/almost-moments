@@ -14,6 +14,10 @@ bun run build
 
 Fix any errors or warnings before considering the task complete.
 
+## Forms
+
+Always use semantic `<form onSubmit>` with `type="submit"` buttons. Never use `onClick` on a button to submit form data. This ensures proper keyboard support (Enter to submit), accessibility, and browser-native validation (`required`, `min`, etc.). Cancel buttons inside forms must use `type="button"` to prevent accidental submission.
+
 ## SEO
 
 When adding or modifying pages, always keep SEO up to date:

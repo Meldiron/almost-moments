@@ -1151,7 +1151,10 @@ function Footer() {
             <h4 className="font-sans font-bold text-sm mb-4">Connect</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               <li>
-                <a href="https://github.com/meldiron/almost-moments" className="hover:text-foreground transition-colors">
+                <a
+                  href="https://github.com/meldiron/almost-moments"
+                  className="hover:text-foreground transition-colors"
+                >
                   GitHub
                 </a>
               </li>
