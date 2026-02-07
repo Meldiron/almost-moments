@@ -561,146 +561,140 @@ function Hero() {
 }
 
 // ─── How It Works ───────────────────────────────────────────────
-function HowItWorks() {
-  const steps = [
-    {
-      icon: <PartyPopper className="size-9" />,
-      title: "Create a gallery",
-      description:
-        "Give your event a name and get a unique gallery link and QR code in seconds.",
-      bgClass: "bg-lime/15",
-      textClass: "text-lime",
-      borderClass: "border-lime/30",
-      dotClass: "bg-lime",
-      number: "01",
-    },
-    {
-      icon: <QrCode className="size-9" />,
-      title: "Share the QR code",
-      description:
-        "Print it, display it, or send the link. Place it where guests can easily scan.",
-      bgClass: "bg-sky/15",
-      textClass: "text-sky",
-      borderClass: "border-sky/30",
-      dotClass: "bg-sky",
-      number: "02",
-    },
-    {
-      icon: <Upload className="size-9" />,
-      title: "Guests upload photos",
-      description:
-        "No app, no account. Guests open the link and upload straight from their phone.",
-      bgClass: "bg-coral/15",
-      textClass: "text-coral",
-      borderClass: "border-coral/30",
-      dotClass: "bg-coral",
-      number: "03",
-    },
-    {
-      icon: <Images className="size-9" />,
-      title: "Enjoy every moment",
-      description:
-        "All photos and videos from every guest — together in one beautiful gallery.",
-      bgClass: "bg-amber/15",
-      textClass: "text-amber",
-      borderClass: "border-amber/30",
-      dotClass: "bg-amber",
-      number: "04",
-    },
-  ];
+const howItWorksSteps = [
+  {
+    icon: <PartyPopper className="size-9" />,
+    title: "Create a gallery",
+    description:
+      "Give your event a name and get a unique gallery link and QR code in seconds.",
+    bgClass: "bg-lime/15",
+    textClass: "text-lime",
+    dotClass: "bg-lime",
+    number: "01",
+  },
+  {
+    icon: <QrCode className="size-9" />,
+    title: "Share the QR code",
+    description:
+      "Print it, display it, or send the link. Place it where guests can easily scan.",
+    bgClass: "bg-sky/15",
+    textClass: "text-sky",
+    dotClass: "bg-sky",
+    number: "02",
+  },
+  {
+    icon: <Upload className="size-9" />,
+    title: "Guests upload photos",
+    description:
+      "No app, no account. Guests open the link and upload straight from their phone.",
+    bgClass: "bg-coral/15",
+    textClass: "text-coral",
+    dotClass: "bg-coral",
+    number: "03",
+  },
+  {
+    icon: <Images className="size-9" />,
+    title: "Enjoy every moment",
+    description:
+      "All photos and videos from every guest — together in one beautiful gallery.",
+    bgClass: "bg-amber/15",
+    textClass: "text-amber",
+    dotClass: "bg-amber",
+    number: "04",
+  },
+];
 
+function HowItWorksHeader() {
+  return (
+    <AnimateIn className="text-center mb-16 sm:mb-20">
+      <Badge
+        variant="secondary"
+        className="mb-4 rounded-full px-4 py-1.5 text-sm border border-border"
+      >
+        Quick and simple
+      </Badge>
+      <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
+        How it works
+      </h2>
+      <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto">
+        From event to shared gallery in under a minute.
+      </p>
+    </AnimateIn>
+  );
+}
+
+function HowItWorks() {
   return (
     <section
       id="how-it-works"
       className="py-28 sm:py-36 relative overflow-hidden"
     >
-      {/* Dot pattern background — fades out toward center and bottom */}
       <div
         className="absolute inset-0 pattern-dots-lime"
         style={{
           maskImage:
-            "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, black 60%, transparent 100%)",
+            "radial-gradient(ellipse at center, transparent 30%, black 90%)",
           WebkitMaskImage:
-            "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, black 60%, transparent 100%)",
-          maskComposite: "intersect",
-          WebkitMaskComposite: "destination-in",
+            "radial-gradient(ellipse at center, transparent 30%, black 90%)",
         }}
       />
-
       <div className="relative mx-auto max-w-5xl px-6">
-        <AnimateIn className="text-center mb-20 sm:mb-28">
-          <Badge
-            variant="secondary"
-            className="mb-4 rounded-full px-4 py-1.5 text-sm border border-border"
-          >
-            Quick and simple
-          </Badge>
-          <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
-            How it works
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto">
-            From event to shared gallery in under a minute.
-          </p>
-        </AnimateIn>
+        <HowItWorksHeader />
 
-        {/* Timeline */}
         <div className="relative">
-          {/* Vertical line */}
-          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-border -translate-x-1/2" />
+          {/* Timeline line (desktop only) */}
+          <div className="hidden md:block absolute left-[11px] top-10 bottom-10 w-1 bg-border rounded-full" />
 
-          <div className="space-y-16 sm:space-y-24">
-            {steps.map((step, i) => {
-              const isRight = i % 2 === 1;
-              return (
-                <AnimateIn
-                  key={step.number}
-                  animation={
-                    isRight ? "animate-slide-in-right" : "animate-slide-in-left"
-                  }
-                  delay={`stagger-${i + 1}`}
-                >
-                  <div
-                    className={`flex flex-col md:flex-row items-center gap-8 ${isRight ? "md:flex-row-reverse" : ""}`}
-                  >
-                    {/* Content card */}
-                    <div className="flex-1 w-full">
-                      <div className="relative rounded-3xl bg-card border border-border p-8 sm:p-10">
-                        {/* Large background number */}
+          <div className="space-y-6">
+            {howItWorksSteps.map((step, i) => (
+              <AnimateIn
+                key={step.number}
+                animation={
+                  i % 2 === 0
+                    ? "animate-slide-in-left"
+                    : "animate-slide-in-right"
+                }
+                delay={`stagger-${i + 1}`}
+              >
+                <div className="flex items-center gap-6 md:gap-8">
+                  {/* Timeline dot (desktop only) */}
+                  <div className="hidden md:flex shrink-0 relative z-10">
+                    <div
+                      className={`size-6 rounded-full ${step.dotClass} ring-4 ring-background`}
+                    />
+                  </div>
+
+                  {/* Card */}
+                  <div className="flex-1 rounded-3xl bg-card border border-border p-8 sm:p-10">
+                    <div className="flex flex-col md:flex-row items-start gap-6 md:gap-8">
+                      {/* Left: number + icon */}
+                      <div className="flex items-center gap-4 md:flex-col md:items-center shrink-0">
                         <span
-                          className={`absolute top-6 right-8 font-sans text-7xl sm:text-8xl font-black ${step.textClass} opacity-[0.07] select-none`}
+                          className={`font-sans text-4xl sm:text-5xl font-black ${step.textClass}`}
                         >
                           {step.number}
                         </span>
-
-                        <div className="relative">
-                          <div
-                            className={`size-16 sm:size-20 rounded-2xl ${step.bgClass} flex items-center justify-center mb-6`}
-                          >
-                            <div className={step.textClass}>{step.icon}</div>
-                          </div>
-                          <h3 className="font-sans text-2xl sm:text-3xl font-bold mb-3">
-                            {step.title}
-                          </h3>
-                          <p className="text-muted-foreground text-base sm:text-lg leading-relaxed max-w-md">
-                            {step.description}
-                          </p>
+                        <div
+                          className={`size-16 sm:size-20 rounded-2xl ${step.bgClass} flex items-center justify-center`}
+                        >
+                          <div className={step.textClass}>{step.icon}</div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Timeline node */}
-                    <div className="hidden md:flex items-center justify-center shrink-0">
-                      <div
-                        className={`size-4 rounded-full ${step.dotClass} shadow-lg ring-4 ring-background`}
-                      />
+                      {/* Right: title + description */}
+                      <div className="flex-1 md:pt-2">
+                        <h3 className="font-sans text-2xl sm:text-3xl font-bold mb-3">
+                          {step.title}
+                        </h3>
+                        <p className="text-muted-foreground text-base sm:text-lg leading-relaxed max-w-2xl">
+                          {step.description}
+                        </p>
+                      </div>
                     </div>
-
-                    {/* Spacer */}
-                    <div className="flex-1 hidden md:block" />
                   </div>
-                </AnimateIn>
-              );
-            })}
+                </div>
+              </AnimateIn>
+            ))}
           </div>
         </div>
       </div>
