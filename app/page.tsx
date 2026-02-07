@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useState, useEffect, useRef, type ReactNode } from "react";
+import Link from "next/link";
 import { ThemeContext } from "./layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -128,9 +129,11 @@ function Navbar() {
             {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
 
-          <Button size="sm" className="hidden md:inline-flex rounded-full px-5 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold">
-            Create Gallery
-          </Button>
+          <Link href="/sign-in">
+            <Button size="sm" className="hidden md:inline-flex rounded-full px-5 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold">
+              Create Gallery
+            </Button>
+          </Link>
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -153,9 +156,11 @@ function Navbar() {
           <a href="#faq" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground py-2">
             FAQ
           </a>
-          <Button className="rounded-full bg-lime text-lime-foreground hover:bg-lime/90 font-semibold w-full">
-            Create Gallery
-          </Button>
+          <Link href="/sign-in">
+            <Button className="rounded-full bg-lime text-lime-foreground hover:bg-lime/90 font-semibold w-full">
+              Create Gallery
+            </Button>
+          </Link>
         </div>
       )}
     </nav>
@@ -189,8 +194,8 @@ const galleries = [
     floatText: "+24 photos",
     floatSub: "just uploaded",
     guestCount: "58 guests",
-    leftCardTop: 72,    // px from top
-    rightCardBottom: 96, // px from bottom
+    leftCardTop: 160,    // px from top
+    rightCardBottom: 140, // px from bottom
   },
   {
     emoji: "🎂",
@@ -200,7 +205,7 @@ const galleries = [
     stats: "183 photos by 34 guests",
     photos: [
       "photo-1530103862676-de8c9debad1d",
-      "photo-1464349153159-4a4e48e8f2fa",
+      "photo-1464349095431-e9a21285b5f3",
       "photo-1513151233558-d860c5398176",
       "photo-1504196606672-aef5c9cefc92",
       "photo-1527529482837-4698179dc6ce",
@@ -210,7 +215,7 @@ const galleries = [
       "photo-1519671482749-fd09be7ccebf",
       "photo-1533174072545-7a4b6ad7a6c3",
       "photo-1551024709-8f23befc6f87",
-      "photo-1485872299829-c44036b508af",
+      "photo-1514525253161-7a46d19cd819",
     ],
     floatIcon: <PartyPopper className="size-5 text-amber" />,
     floatBg: "bg-amber/20",
@@ -245,8 +250,8 @@ const galleries = [
     floatText: "+41 photos",
     floatSub: "just uploaded",
     guestCount: "95 guests",
-    leftCardTop: 48,
-    rightCardBottom: 64,
+    leftCardTop: 200,
+    rightCardBottom: 140,
   },
   {
     emoji: "📚",
@@ -273,8 +278,8 @@ const galleries = [
     floatText: "+8 photos",
     floatSub: "just uploaded",
     guestCount: "22 guests",
-    leftCardTop: 180,
-    rightCardBottom: 48,
+    leftCardTop: 240,
+    rightCardBottom: 140,
   },
 ];
 
@@ -360,13 +365,15 @@ function Hero() {
         </p>
 
         <div className="animate-slide-up stagger-4 mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button
-            size="lg"
-            className="rounded-full px-8 h-13 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-semibold shadow-lg shadow-lime/20"
-          >
-            Create Your Gallery
-            <ArrowRight className="size-4 ml-1" />
-          </Button>
+          <Link href="/sign-in">
+            <Button
+              size="lg"
+              className="rounded-full px-8 h-13 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-semibold shadow-lg shadow-lime/20"
+            >
+              Create Your Gallery
+              <ArrowRight className="size-4 ml-1" />
+            </Button>
+          </Link>
           <Button
             variant="outline"
             size="lg"
@@ -905,13 +912,15 @@ function CTA() {
             No credit card, no catch.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              size="lg"
-              className="rounded-full px-10 h-14 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-bold shadow-lg shadow-lime/25"
-            >
-              Create Your Gallery — It's Free
-              <ChevronRight className="size-5 ml-1" />
-            </Button>
+            <Link href="/sign-in">
+              <Button
+                size="lg"
+                className="rounded-full px-10 h-14 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-bold shadow-lg shadow-lime/25"
+              >
+                Create Your Gallery — It&apos;s Free
+                <ChevronRight className="size-5 ml-1" />
+              </Button>
+            </Link>
           </div>
           <p className="mt-6 text-sm text-muted-foreground">
             No sign-up required to get started
@@ -954,9 +963,9 @@ function Footer() {
           <div>
             <h4 className="font-sans font-bold text-sm mb-4">Legal</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Cookie Policy</a></li>
+              <li><a href="https://appwrite.io/privacy" className="hover:text-foreground transition-colors">Privacy Policy</a></li>
+              <li><a href="https://appwrite.io/terms" className="hover:text-foreground transition-colors">Terms of Service</a></li>
+              <li><a href="https://appwrite.io/cookies" className="hover:text-foreground transition-colors">Cookie Policy</a></li>
             </ul>
           </div>
 
