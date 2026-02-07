@@ -52,10 +52,7 @@ tableIdMap["main"] = Object.create(null);
 tableIdMap["main"]["galleries"] = "galleries";
 tableIdMap["main"]["galleryAssets"] = "gallery-assets";
 
-const tablesWithRelationships = new Set<string>([
-  "main:galleries",
-  "main:galleryAssets",
-]);
+const tablesWithRelationships = new Set<string>();
 
 const roleBuilder: RoleBuilder = {
   any: () => Role.any() as RoleString,

@@ -4,31 +4,26 @@ export type GalleriesCreate = {
   name: string;
   description?: string | null;
   expiryAt?: string | null;
-  assets?: (
-    | (GalleryAssetsCreate & { $id?: string; $permissions?: string[] })
-    | string
-  )[];
+  totalAssets: number;
 };
 
 export type Galleries = Models.Row & {
   name: string;
   description?: string | null;
   expiryAt?: string | null;
-  assets?: GalleryAssets[];
+  totalAssets: number;
 };
 
 export type GalleryAssetsCreate = {
-  gallery?:
-    | (GalleriesCreate & { $id?: string; $permissions?: string[] })
-    | string;
   fileId: string;
   blurhash: string;
+  galleryId: string;
 };
 
 export type GalleryAssets = Models.Row & {
-  gallery?: Galleries;
   fileId: string;
   blurhash: string;
+  galleryId: string;
 };
 
 declare const __roleStringBrand: unique symbol;
@@ -69,8 +64,7 @@ export type ExtractQueryValue<T> = T extends (infer U)[]
 
 export type QueryableKeys<T> = {
   [K in keyof T]: ExtractQueryValue<T[K]> extends never ? never : K;
-}[keyof T] &
-  keyof T;
+}[keyof T];
 
 export type QueryBuilder<T> = {
   equal: <K extends QueryableKeys<T>>(
@@ -132,10 +126,7 @@ export type DatabaseTableMap = {
           name: string;
           description?: string | null;
           expiryAt?: string | null;
-          assets?: (
-            | (GalleryAssetsCreate & { $id?: string; $permissions?: string[] })
-            | string
-          )[];
+          totalAssets: number;
         },
         options?: {
           rowId?: string;
@@ -167,10 +158,7 @@ export type DatabaseTableMap = {
           name: string;
           description?: string | null;
           expiryAt?: string | null;
-          assets?: (
-            | (GalleryAssetsCreate & { $id?: string; $permissions?: string[] })
-            | string
-          )[];
+          totalAssets: number;
         }>,
         options?: {
           permissions?: (
@@ -262,11 +250,9 @@ export type DatabaseTableMap = {
     galleryAssets: {
       create: (
         data: {
-          gallery?:
-            | (GalleriesCreate & { $id?: string; $permissions?: string[] })
-            | string;
           fileId: string;
           blurhash: string;
+          galleryId: string;
         },
         options?: {
           rowId?: string;
@@ -295,11 +281,9 @@ export type DatabaseTableMap = {
       update: (
         id: string,
         data: Partial<{
-          gallery?:
-            | (GalleriesCreate & { $id?: string; $permissions?: string[] })
-            | string;
           fileId: string;
           blurhash: string;
+          galleryId: string;
         }>,
         options?: {
           permissions?: (

@@ -49,7 +49,7 @@
   "tables": [
     {
       "$id": "galleries",
-      "$permissions": [],
+      "$permissions": ["create(\"users\")"],
       "databaseId": "main",
       "name": "galleries",
       "enabled": true,
@@ -82,40 +82,40 @@
           "format": ""
         },
         {
-          "key": "assets",
-          "type": "relationship",
-          "required": false,
+          "key": "totalAssets",
+          "type": "integer",
+          "required": true,
           "array": false,
-          "relatedTable": "gallery-assets",
-          "relationType": "oneToMany",
-          "twoWay": true,
-          "twoWayKey": "gallery",
-          "onDelete": "cascade",
-          "side": "parent"
+          "default": null,
+          "min": 0,
+          "max": 9223372036854775807
         }
       ],
-      "indexes": []
+      "indexes": [
+        {
+          "key": "name",
+          "type": "fulltext",
+          "status": "available",
+          "columns": ["name"],
+          "orders": ["ASC"]
+        },
+        {
+          "key": "description",
+          "type": "fulltext",
+          "status": "available",
+          "columns": ["description"],
+          "orders": ["ASC"]
+        }
+      ]
     },
     {
       "$id": "gallery-assets",
-      "$permissions": [],
+      "$permissions": ["read(\"any\")"],
       "databaseId": "main",
       "name": "galleryAssets",
       "enabled": true,
-      "rowSecurity": false,
+      "rowSecurity": true,
       "columns": [
-        {
-          "key": "gallery",
-          "type": "relationship",
-          "required": false,
-          "array": false,
-          "relatedTable": "galleries",
-          "relationType": "oneToMany",
-          "twoWay": true,
-          "twoWayKey": "assets",
-          "onDelete": "cascade",
-          "side": "child"
-        },
         {
           "key": "fileId",
           "type": "string",
@@ -127,6 +127,15 @@
         },
         {
           "key": "blurhash",
+          "type": "string",
+          "required": true,
+          "array": false,
+          "size": 255,
+          "default": null,
+          "encrypt": false
+        },
+        {
+          "key": "galleryId",
           "type": "string",
           "required": true,
           "array": false,

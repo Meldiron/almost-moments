@@ -138,5 +138,13 @@ export async function POST(
     });
   }
 
+  await tablesDB.incrementRowColumn({
+    databaseId: "main",
+    tableId: "galleries",
+    rowId: galleryId,
+    column: "totalAssets",
+    value: uniqueFileIds.length,
+  });
+
   return NextResponse.json({ created: uniqueFileIds.length }, { status: 201 });
 }

@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useState, useContext, useRef } from "react";
+import {
+  useEffect,
+  useState,
+  useContext,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,14 +28,14 @@ import {
   FileImage,
   FileVideo,
   RotateCcw,
+  Loader2,
 } from "lucide-react";
 import QRCode from "qrcode";
-import { MasonryPhotoAlbum } from "react-photo-album";
-import "react-photo-album/masonry.css";
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import "yet-another-react-lightbox/styles.css";
+import { decode } from "blurhash";
 
 import { ThemeContext } from "@/app/layout";
 import { SEO } from "@/components/seo";
@@ -49,95 +56,84 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { storage, ID } from "@/lib/appwrite";
+import { databases } from "@/lib/generated/appwrite";
+import type { Galleries, GalleryAssets } from "@/lib/generated/appwrite";
 import { cn } from "@/lib/utils";
-
-type GalleryAsset = {
-  fileId: string;
-};
-
-type Gallery = {
-  $id: string;
-  $createdAt: string;
-  name: string;
-  description?: string | null;
-  expiryAt?: string | null;
-  assets?: GalleryAsset[];
-};
 
 type PageState =
   | { status: "loading" }
   | { status: "not-found" }
-  | { status: "expired"; gallery: Gallery }
-  | { status: "ready"; gallery: Gallery };
+  | { status: "expired"; gallery: Galleries }
+  | { status: "ready"; gallery: Galleries };
 
 const ACCEPTED_EXTENSIONS = ".jpg,.jpeg,.png,.webp,.heic,.mp4,.mov";
 const VIDEO_EXTENSIONS = new Set(["mp4", "mov"]);
 const MAX_CONCURRENT = 5;
 const MAX_RETRIES = 3;
+const ASSETS_PAGE_SIZE = 100;
 
-// ─── Placeholder photos ────────────────────────────────────────
-const PLACEHOLDER_PHOTOS = [
-  {
-    src: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=800",
+// ─── Blurhash canvas helper ────────────────────────────────────
+function blurhashToDataUrl(hash: string, width = 32, height = 32): string {
+  const pixels = decode(hash, width, height);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d")!;
+  const imageData = ctx.createImageData(width, height);
+  imageData.data.set(pixels);
+  ctx.putImageData(imageData, 0, 0);
+  return canvas.toDataURL();
+}
+
+// ─── Single gallery image with blurhash → real image ───────────
+function GalleryImage({
+  asset,
+  onClick,
+}: {
+  asset: GalleryAssets;
+  onClick: () => void;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  const blurhashSrc = useMemo(
+    () => blurhashToDataUrl(asset.blurhash),
+    [asset.blurhash],
+  );
+  const previewUrl = storage.getFilePreview({
+    bucketId: "assets",
+    fileId: asset.fileId,
     width: 800,
-    height: 1200,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800",
-    width: 800,
-    height: 533,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800",
-    width: 800,
-    height: 533,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800",
-    width: 800,
-    height: 533,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800",
-    width: 800,
-    height: 1200,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?w=800",
-    width: 800,
-    height: 533,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800",
-    width: 800,
-    height: 533,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800",
-    width: 800,
-    height: 533,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800",
-    width: 800,
-    height: 800,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1472653816316-3ad6f10a6592?w=800",
-    width: 800,
-    height: 1200,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800",
-    width: 800,
-    height: 533,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800",
-    width: 800,
-    height: 1200,
-  },
-];
+    quality: 80,
+  });
+
+  return (
+    <button
+      onClick={onClick}
+      className="block w-full rounded-xl overflow-hidden cursor-pointer break-inside-avoid relative"
+    >
+      {/* Blurhash placeholder */}
+      {!loaded && (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={blurhashSrc}
+          alt=""
+          className="w-full h-auto aspect-[4/3] object-cover"
+        />
+      )}
+      {/* Real image */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={previewUrl}
+        alt=""
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        className={cn(
+          "w-full h-auto rounded-xl transition-opacity duration-300",
+          loaded ? "opacity-100" : "opacity-0 absolute inset-0",
+        )}
+      />
+    </button>
+  );
+}
 
 // ─── Helpers ───────────────────────────────────────────────────
 function formatRelativeTime(dateString: string): string {
@@ -253,7 +249,7 @@ function NotFoundState() {
   );
 }
 
-function ExpiredState({ gallery }: { gallery: Gallery }) {
+function ExpiredState({ gallery }: { gallery: Galleries }) {
   return (
     <div className="min-h-dvh bg-background flex items-center justify-center px-4">
       <SEO title={`${gallery.name} — Expired`} />
@@ -295,6 +291,13 @@ export default function GalleryPage() {
   const [qrOpen, setQrOpen] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [copied, setCopied] = useState(false);
+
+  // Gallery assets state
+  const [assets, setAssets] = useState<GalleryAssets[]>([]);
+  const [assetsLoading, setAssetsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const lastCursorRef = useRef<string | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   // Upload state
   type FileStatus = "pending" | "uploading" | "done" | "failed";
@@ -376,6 +379,25 @@ export default function GalleryPage() {
     return false;
   }
 
+  async function refreshAfterUpload() {
+    // Re-fetch gallery document
+    try {
+      const res = await fetch(`/api/v1/galleries/${galleryId}`);
+      if (res.ok) {
+        const gallery: Galleries = await res.json();
+        setState({ status: "ready", gallery });
+      }
+    } catch {
+      // Ignore — gallery state stays as-is
+    }
+
+    // Reset and reload all assets from scratch
+    setAssets([]);
+    lastCursorRef.current = null;
+    setHasMore(true);
+    initialLoadDone.current = false;
+  }
+
   async function finalizeUpload() {
     const fileIds = Array.from(uploadedFileIds.current.values());
     if (fileIds.length === 0) {
@@ -392,6 +414,7 @@ export default function GalleryPage() {
       });
       if (!res.ok) throw new Error("Failed to attach files to gallery.");
       setFinalized(true);
+      await refreshAfterUpload();
     } catch {
       setUploadOpen(false);
       setErrorMessage(
@@ -462,6 +485,44 @@ export default function GalleryPage() {
     setTimeout(() => setCopied(false), 2000);
   }
 
+  // ─── Load gallery assets page ─────────────────────────────
+  const loadAssets = useCallback(async () => {
+    if (assetsLoading || !hasMore) return;
+    setAssetsLoading(true);
+
+    try {
+      const galleryAssetsTable = databases.use("main").use("galleryAssets");
+      const result = await galleryAssetsTable.list({
+        queries: (q) => {
+          const queries = [
+            q.equal("galleryId", galleryId),
+            q.orderDesc("$createdAt"),
+            q.limit(ASSETS_PAGE_SIZE),
+          ];
+          if (lastCursorRef.current) {
+            queries.push(q.cursorAfter(lastCursorRef.current));
+          }
+          return queries;
+        },
+      });
+
+      const newRows = result.rows;
+      if (newRows.length < ASSETS_PAGE_SIZE) {
+        setHasMore(false);
+      }
+      if (newRows.length > 0) {
+        lastCursorRef.current = newRows[newRows.length - 1].$id;
+        setAssets((prev) => [...prev, ...newRows]);
+      } else {
+        setHasMore(false);
+      }
+    } catch {
+      setHasMore(false);
+    } finally {
+      setAssetsLoading(false);
+    }
+  }, [assetsLoading, hasMore, galleryId]);
+
   useEffect(() => {
     let ignore = false;
 
@@ -475,7 +536,7 @@ export default function GalleryPage() {
           return;
         }
         if (res.status === 410) {
-          const gallery: Gallery = await res.json();
+          const gallery: Galleries = await res.json();
           if (!ignore) setState({ status: "expired", gallery });
           return;
         }
@@ -483,7 +544,7 @@ export default function GalleryPage() {
           setState({ status: "not-found" });
           return;
         }
-        const gallery: Gallery = await res.json();
+        const gallery: Galleries = await res.json();
         if (!ignore) setState({ status: "ready", gallery });
       } catch {
         if (!ignore) setState({ status: "not-found" });
@@ -496,14 +557,40 @@ export default function GalleryPage() {
     };
   }, [galleryId]);
 
+  // ─── Load first page of assets once gallery is ready ──────
+  const initialLoadDone = useRef(false);
+  useEffect(() => {
+    if (state.status === "ready" && !initialLoadDone.current) {
+      initialLoadDone.current = true;
+      loadAssets();
+    }
+  }, [state.status, loadAssets]);
+
+  // ─── Infinite scroll observer ─────────────────────────────
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !assetsLoading) {
+          loadAssets();
+        }
+      },
+      { rootMargin: "400px" },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, assetsLoading, loadAssets]);
+
   if (state.status === "loading") return <GallerySkeleton />;
   if (state.status === "not-found") return <NotFoundState />;
   if (state.status === "expired")
     return <ExpiredState gallery={state.gallery} />;
 
   const { gallery } = state;
-  const photoCount = gallery.assets?.length ?? 0;
-  const photos = PLACEHOLDER_PHOTOS;
+  const photoCount = gallery.totalAssets;
 
   return (
     <div className="min-h-dvh bg-background">
@@ -540,10 +627,10 @@ export default function GalleryPage() {
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               onClick={triggerFileInput}
-              className="size-9 rounded-full flex items-center justify-center bg-lime/20 text-lime-foreground hover:bg-lime/30 dark:bg-lime/15 dark:text-lime dark:hover:bg-lime/25 transition-colors"
-              aria-label="Upload photos"
+              className="inline-flex items-center gap-1.5 rounded-full px-3.5 h-9 bg-lime/20 text-sm font-medium text-lime-foreground hover:bg-lime/30 dark:bg-lime/15 dark:text-lime dark:hover:bg-lime/25 transition-colors"
             >
               <Upload className="size-4" />
+              <span className="hidden sm:inline">Upload images</span>
             </button>
             <button
               className="size-9 rounded-full flex items-center justify-center bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
@@ -632,7 +719,7 @@ export default function GalleryPage() {
 
       {/* ─── Gallery ─────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6 pb-16">
-        {photoCount === 0 ? (
+        {photoCount === 0 && !assetsLoading && !hasMore ? (
           <div className="py-20 text-center animate-scale-in">
             <div className="mx-auto mb-5 size-20 rounded-2xl bg-muted flex items-center justify-center">
               <Camera className="size-10 text-muted-foreground" />
@@ -653,19 +740,34 @@ export default function GalleryPage() {
           </div>
         ) : (
           <div className="animate-slide-up stagger-3">
-            <MasonryPhotoAlbum
-              photos={photos}
-              columns={(containerWidth) => {
-                if (containerWidth < 500) return 2;
-                if (containerWidth < 900) return 3;
-                return 4;
-              }}
-              spacing={8}
-              onClick={({ index }) => setLightboxIndex(index)}
-            />
+            <div className="columns-2 sm:columns-3 lg:columns-4 gap-2 space-y-2">
+              {assets.map((asset, index) => (
+                <GalleryImage
+                  key={asset.$id}
+                  asset={asset}
+                  onClick={() => setLightboxIndex(index)}
+                />
+              ))}
+            </div>
+
+            {/* Infinite scroll sentinel */}
+            <div ref={sentinelRef} className="h-1" />
+
+            {assetsLoading && (
+              <div className="flex justify-center py-8">
+                <Loader2 className="size-6 text-muted-foreground animate-spin" />
+              </div>
+            )}
 
             <Lightbox
-              slides={photos}
+              slides={assets.map((asset) => ({
+                src: storage.getFilePreview({
+                  bucketId: "assets",
+                  fileId: asset.fileId,
+                  width: 1920,
+                  quality: 90,
+                }),
+              }))}
               open={lightboxIndex >= 0}
               index={lightboxIndex}
               close={() => setLightboxIndex(-1)}

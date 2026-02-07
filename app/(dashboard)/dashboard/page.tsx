@@ -63,9 +63,7 @@ type FilterId =
   | "expired"
   | "expiring-soon"
   | "created-this-year"
-  | "many-photos"
   | "never-expires"
-  | "no-photos"
   | "has-description";
 
 type SortOption = "created-desc" | "created-asc" | "expiry-desc" | "expiry-asc";
@@ -307,12 +305,6 @@ export default function DashboardPage() {
     let filtered = rows;
     for (const filterId of activeFilters) {
       switch (filterId) {
-        case "many-photos":
-          filtered = filtered.filter((g) => (g.assets?.length ?? 0) >= 100);
-          break;
-        case "no-photos":
-          filtered = filtered.filter((g) => (g.assets?.length ?? 0) === 0);
-          break;
         case "has-description":
           filtered = filtered.filter(
             (g) => g.description && g.description.trim().length > 0,
@@ -323,10 +315,7 @@ export default function DashboardPage() {
     return filtered;
   }
 
-  const needsClientFilter =
-    activeFilters.has("many-photos") ||
-    activeFilters.has("no-photos") ||
-    activeFilters.has("has-description");
+  const needsClientFilter = activeFilters.has("has-description");
 
   function buildServerQueries(
     q: Parameters<
@@ -527,6 +516,7 @@ export default function DashboardPage() {
         name: name.trim(),
         description: description.trim() || null,
         expiryAt,
+        totalAssets: 0,
       });
       setGalleries((prev) => [gallery, ...prev]);
       setTotal((prev) => prev + 1);
@@ -716,7 +706,7 @@ export default function DashboardPage() {
         <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {allVisible.map((gallery) => {
-              const photoCount = gallery.assets?.length ?? 0;
+              const photoCount = gallery.totalAssets ?? 0;
               const isExpired =
                 gallery.expiryAt && new Date(gallery.expiryAt) < new Date();
               const expiryLabel = gallery.expiryAt
