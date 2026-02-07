@@ -1,6 +1,10 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ID, OAuthProvider } from "appwrite";
+import { account } from "@/lib/appwrite";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +33,39 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await account.create(ID.unique(), email, password, name);
+      await account.createEmailPasswordSession(email, password);
+      router.push("/");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to create account. Please try again.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleGoogleOAuth() {
+    const origin = window.location.origin;
+    account.createOAuth2Token(
+      OAuthProvider.Google,
+      `${origin}/oauth/callback`,
+      `${origin}/sign-up`
+    );
+  }
+
   return (
     <div className="rounded-2xl bg-card border border-border p-8 shadow-xl">
       <div className="text-center mb-8">
@@ -42,6 +79,7 @@ export default function SignUpPage() {
       <Button
         variant="outline"
         className="w-full rounded-xl h-12 text-sm font-medium"
+        onClick={handleGoogleOAuth}
       >
         <GoogleIcon className="size-5 mr-2" />
         Continue with Google
@@ -60,10 +98,7 @@ export default function SignUpPage() {
       </div>
 
       {/* Sign Up Form */}
-      <form
-        onSubmit={(e) => e.preventDefault()}
-        className="space-y-4"
-      >
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="name">Full name</Label>
           <Input
@@ -71,6 +106,9 @@ export default function SignUpPage() {
             type="text"
             placeholder="Jane Doe"
             className="rounded-xl h-12"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
           />
         </div>
 
@@ -81,6 +119,9 @@ export default function SignUpPage() {
             type="email"
             placeholder="you@example.com"
             className="rounded-xl h-12"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </div>
 
@@ -91,14 +132,23 @@ export default function SignUpPage() {
             type="password"
             placeholder="••••••••"
             className="rounded-xl h-12"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
           />
         </div>
+
+        {error && (
+          <p className="text-sm text-destructive text-center">{error}</p>
+        )}
 
         <Button
           type="submit"
           className="w-full rounded-xl h-12 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold text-sm"
+          disabled={loading}
         >
-          Create account
+          {loading ? "Creating account..." : "Create account"}
         </Button>
       </form>
 
