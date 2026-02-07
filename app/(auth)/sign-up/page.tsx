@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ID, OAuthProvider } from "appwrite";
 import { account } from "@/lib/appwrite";
+import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,7 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { refresh } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -47,6 +49,7 @@ export default function SignUpPage() {
     try {
       await account.create(ID.unique(), email, password, name);
       await account.createEmailPasswordSession(email, password);
+      await refresh();
       router.push("/dashboard");
     } catch (err: unknown) {
       const message =

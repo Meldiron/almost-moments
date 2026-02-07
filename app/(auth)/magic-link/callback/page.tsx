@@ -3,10 +3,12 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { account } from "@/lib/appwrite";
+import { useAuth } from "@/lib/auth-context";
 import { Loader2 } from "lucide-react";
 
 function MagicLinkCallbackContent() {
   const router = useRouter();
+  const { refresh } = useAuth();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
 
@@ -21,6 +23,7 @@ function MagicLinkCallbackContent() {
 
     account
       .createSession(userId, secret)
+      .then(() => refresh())
       .then(() => {
         router.replace("/dashboard");
       })
@@ -31,7 +34,7 @@ function MagicLinkCallbackContent() {
             : "This link has expired or is invalid. Please request a new one.";
         setError(message);
       });
-  }, [searchParams, router]);
+  }, [searchParams, router, refresh]);
 
   if (error) {
     return (

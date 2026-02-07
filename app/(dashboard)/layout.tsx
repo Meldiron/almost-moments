@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/auth-context";
+import { account } from "@/lib/appwrite";
 import { ThemeContext } from "../layout";
 
 export default function DashboardLayout({
@@ -26,16 +27,19 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { user, loading, mfaRequired, refresh } = useAuth();
   const { isDark, toggle } = useContext(ThemeContext);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return;
+    if (mfaRequired) {
+      router.replace("/mfa-login");
+    } else if (!user) {
       router.replace("/sign-in");
     }
-  }, [user, loading, router]);
+  }, [user, loading, mfaRequired, router]);
 
   if (loading || !user) {
     return null;
@@ -108,7 +112,14 @@ export default function DashboardLayout({
                     Settings
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer">
+                <DropdownMenuItem
+                  className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
+                  onClick={async () => {
+                    await account.deleteSession("current");
+                    await refresh();
+                    router.replace("/sign-in");
+                  }}
+                >
                   <LogOut className="size-4" />
                   Sign out
                 </DropdownMenuItem>

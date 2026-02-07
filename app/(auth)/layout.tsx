@@ -14,16 +14,19 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   const { isDark, toggle } = useContext(ThemeContext);
-  const { user, loading } = useAuth();
+  const { user, loading, mfaRequired } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
+    if (loading) return;
+    if (mfaRequired) {
+      router.replace("/mfa-login");
+    } else if (user) {
       router.replace("/dashboard");
     }
-  }, [user, loading, router]);
+  }, [user, loading, mfaRequired, router]);
 
-  if (loading || user) {
+  if (loading || user || mfaRequired) {
     return null;
   }
 
