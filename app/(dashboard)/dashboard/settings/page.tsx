@@ -18,6 +18,17 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Mail,
   Lock,
   ShieldCheck,
@@ -310,6 +321,10 @@ function TwoFASection() {
   const [copied, setCopied] = useState(false);
   const [disableLoading, setDisableLoading] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [recoveryDialogOpen, setRecoveryDialogOpen] = useState(false);
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [regenerateLoading, setRegenerateLoading] = useState(false);
+  const [recoveryError, setRecoveryError] = useState("");
 
   async function handleDisable() {
     setError("");
@@ -391,6 +406,49 @@ function TwoFASection() {
     }
   }
 
+  async function handleViewRecoveryCodes() {
+    setRecoveryError("");
+    setRecoveryLoading(true);
+    setRecoveryDialogOpen(true);
+    try {
+      const codes = await account.getMFARecoveryCodes();
+      setRecoveryCodes(codes.recoveryCodes);
+    } catch (err: unknown) {
+      if (isMFAChallengeRequired(err)) {
+        setRecoveryDialogOpen(false);
+        router.push("/mfa-challenge");
+        return;
+      }
+      setRecoveryError(
+        err instanceof Error ? err.message : "Failed to load recovery codes",
+      );
+    } finally {
+      setRecoveryLoading(false);
+    }
+  }
+
+  async function handleRegenerateRecoveryCodes() {
+    setRecoveryError("");
+    setRegenerateLoading(true);
+    try {
+      const codes = await account.updateMFARecoveryCodes();
+      setRecoveryCodes(codes.recoveryCodes);
+    } catch (err: unknown) {
+      if (isMFAChallengeRequired(err)) {
+        setRecoveryDialogOpen(false);
+        router.push("/mfa-challenge");
+        return;
+      }
+      setRecoveryError(
+        err instanceof Error
+          ? err.message
+          : "Failed to regenerate recovery codes",
+      );
+    } finally {
+      setRegenerateLoading(false);
+    }
+  }
+
   function copySecret() {
     navigator.clipboard.writeText(secret);
     setCopied(true);
@@ -422,19 +480,52 @@ function TwoFASection() {
           {checking ? (
             <div className="h-9 w-32 rounded-xl bg-muted animate-pulse" />
           ) : verified ? (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="space-y-3">
               <p className="text-sm text-lime flex items-center gap-1.5">
                 <Check className="size-4" /> Two-factor authentication is
                 enabled.
               </p>
-              <Button
-                variant="outline"
-                className="rounded-xl font-medium text-destructive hover:text-destructive"
-                onClick={handleDisable}
-                disabled={disableLoading}
-              >
-                {disableLoading ? "Disabling..." : "Disable 2FA"}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  className="rounded-xl font-medium"
+                  onClick={handleViewRecoveryCodes}
+                >
+                  <KeyRound className="size-4 mr-1.5" />
+                  Recovery codes
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="rounded-xl font-medium text-destructive hover:text-destructive"
+                      disabled={disableLoading}
+                    >
+                      {disableLoading ? "Disabling..." : "Disable 2FA"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Disable 2FA?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will remove the extra layer of security from your
+                        account. You can always re-enable it later.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="rounded-xl">
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        onClick={handleDisable}
+                      >
+                        Disable 2FA
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           ) : (
             <Button
@@ -592,6 +683,80 @@ function TwoFASection() {
               </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={recoveryDialogOpen}
+        onOpenChange={(open) => {
+          setRecoveryDialogOpen(open);
+          if (!open) {
+            setRecoveryError("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Recovery codes</DialogTitle>
+            <DialogDescription>
+              Use these codes to sign in if you lose access to your
+              authenticator app. Each code can only be used once.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {recoveryLoading ? (
+              <div className="grid grid-cols-2 gap-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-9 rounded-lg bg-muted animate-pulse"
+                  />
+                ))}
+              </div>
+            ) : recoveryError ? (
+              <p className="text-sm text-destructive">{recoveryError}</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {recoveryCodes.map((code) => (
+                  <code
+                    key={code}
+                    className="text-sm bg-muted px-3 py-2 rounded-lg font-mono text-center"
+                  >
+                    {code}
+                  </code>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="rounded-xl font-medium flex-1"
+                disabled={recoveryLoading || !!recoveryError}
+                onClick={() => {
+                  const text = `Almost Moments - Recovery Codes\n\n${recoveryCodes.join("\n")}\n`;
+                  const blob = new Blob([text], { type: "text/plain" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = "almost-moments-recovery-codes.txt";
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                <Download className="size-4 mr-1.5" />
+                Download
+              </Button>
+              <Button
+                variant="outline"
+                className="rounded-xl font-medium flex-1"
+                disabled={regenerateLoading || recoveryLoading}
+                onClick={handleRegenerateRecoveryCodes}
+              >
+                {regenerateLoading ? "Regenerating..." : "Regenerate"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
