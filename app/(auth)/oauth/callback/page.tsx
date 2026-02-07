@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { account } from "@/lib/appwrite";
 import { useAuth } from "@/lib/auth-context";
+import { SEO } from "@/components/seo";
 import { Loader2 } from "lucide-react";
 
 function OAuthCallbackContent() {
@@ -60,15 +61,18 @@ function OAuthCallbackContent() {
 
 export default function OAuthCallbackPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="rounded-2xl bg-card border border-border p-8 shadow-xl text-center">
-          <Loader2 className="size-8 text-lime animate-spin mx-auto mb-4" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        </div>
-      }
-    >
-      <OAuthCallbackContent />
-    </Suspense>
+    <>
+      <SEO title="Signing In" />
+      <Suspense
+        fallback={
+          <div className="rounded-2xl bg-card border border-border p-8 shadow-xl text-center">
+            <Loader2 className="size-8 text-lime animate-spin mx-auto mb-4" />
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          </div>
+        }
+      >
+        <OAuthCallbackContent />
+      </Suspense>
+    </>
   );
 }

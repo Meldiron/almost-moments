@@ -1,11 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/seo";
 import { Plus, Images } from "lucide-react";
 
 export default function DashboardPage() {
   return (
     <div>
+      <SEO title="My Galleries" />
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="font-sans text-2xl font-bold">My Galleries</h1>

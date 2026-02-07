@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useState, useEffect, useRef, type ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ThemeContext } from "./layout";
 import { useAuth } from "@/lib/auth-context";
@@ -12,8 +13,8 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
+import { SEO } from "@/components/seo";
 import {
-  Camera,
   QrCode,
   Upload,
   Images,
@@ -101,9 +102,13 @@ function Navbar() {
     >
       <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
         <a href="#" className="flex items-center gap-2.5 group">
-          <div className="size-9 rounded-xl bg-lime flex items-center justify-center group-hover:scale-110 transition-transform">
-            <Camera className="size-5 text-lime-foreground" />
-          </div>
+          <Image
+            src="/logo.svg"
+            alt=""
+            width={36}
+            height={36}
+            className="size-9 rounded-xl group-hover:scale-110 transition-transform"
+          />
           <span className="font-sans text-lg font-bold tracking-tight">
             Almost Moments
           </span>
@@ -1071,9 +1076,13 @@ function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="size-9 rounded-xl bg-lime flex items-center justify-center">
-                <Camera className="size-5 text-lime-foreground" />
-              </div>
+              <Image
+                src="/logo.svg"
+                alt=""
+                width={36}
+                height={36}
+                className="size-9 rounded-xl"
+              />
               <span className="font-sans text-lg font-bold tracking-tight">
                 Almost Moments
               </span>
@@ -1186,6 +1195,7 @@ function Footer() {
 export default function Home() {
   return (
     <div className="min-h-screen font-sans">
+      <SEO />
       <Navbar />
       <Hero />
       <HowItWorks />

@@ -2,8 +2,9 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
-import { Sun, Moon, Camera, X } from "lucide-react";
+import { Sun, Moon, X } from "lucide-react";
 import { ThemeContext } from "../layout";
 import { useContext } from "react";
 import { useAuth } from "@/lib/auth-context";
@@ -49,9 +50,13 @@ export default function AuthLayout({
           href="/"
           className="flex items-center gap-2 text-foreground hover:opacity-80 transition-opacity"
         >
-          <div className="size-9 rounded-xl bg-lime flex items-center justify-center">
-            <Camera className="size-5 text-lime-foreground" />
-          </div>
+          <Image
+            src="/logo.svg"
+            alt=""
+            width={36}
+            height={36}
+            className="size-9 rounded-xl"
+          />
           <span className="font-sans font-bold text-lg">Almost Moments</span>
         </Link>
 

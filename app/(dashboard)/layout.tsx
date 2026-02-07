@@ -2,16 +2,9 @@
 
 import { useEffect, useContext } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
-import {
-  Camera,
-  Sun,
-  Moon,
-  LogOut,
-  Images,
-  Settings,
-  User,
-} from "lucide-react";
+import { Sun, Moon, LogOut, Images, Settings, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,9 +51,13 @@ export default function DashboardLayout({
               href="/"
               className="flex items-center gap-2 text-foreground hover:opacity-80 transition-opacity"
             >
-              <div className="size-8 rounded-lg bg-lime flex items-center justify-center">
-                <Camera className="size-4 text-lime-foreground" />
-              </div>
+              <Image
+                src="/logo.svg"
+                alt=""
+                width={32}
+                height={32}
+                className="size-8 rounded-lg"
+              />
               <span className="font-sans font-bold text-base hidden sm:inline">
                 Almost Moments
               </span>

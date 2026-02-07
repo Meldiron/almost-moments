@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { SEO } from "@/components/seo";
 import { useAuth } from "@/lib/auth-context";
 import {
   Dialog,
@@ -701,6 +702,7 @@ function DeleteAccountSection() {
 export default function SettingsPage() {
   return (
     <div>
+      <SEO title="Settings" />
       <h1 className="font-sans text-2xl font-bold mb-8">Settings</h1>
 
       <div className="space-y-6">

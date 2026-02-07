@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <!-- Camera body — fills most of the canvas -->
+  <rect x="32" y="152" width="448" height="328" rx="56" fill="#a3e635"/>
+
+  <!-- Camera top viewfinder bump -->
+  <rect x="160" y="72" width="192" height="104" rx="36" fill="#a3e635"/>
+
+  <!-- Lens outer ring -->
+  <circle cx="256" cy="316" r="120" fill="#1a2e05"/>
+
+  <!-- Lens middle ring -->
+  <circle cx="256" cy="316" r="88" fill="#2d4a0a"/>
+
+  <!-- Lens inner highlight -->
+  <circle cx="256" cy="316" r="56" fill="#4a7c10"/>
+
+  <!-- Lens catch-light -->
+  <circle cx="230" cy="288" r="20" fill="#a3e635" opacity="0.6"/>
+
+  <!-- Flash dot -->
+  <circle cx="400" cy="200" r="20" fill="#1a2e05" opacity="0.4"/>
+</svg>

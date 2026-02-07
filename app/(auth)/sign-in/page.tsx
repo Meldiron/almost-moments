@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SEO } from "@/components/seo";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -70,118 +71,121 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="rounded-2xl bg-card border border-border p-8 shadow-xl">
-      <div className="text-center mb-8">
-        <h1 className="font-sans text-2xl font-bold">Welcome back</h1>
-        <p className="text-muted-foreground text-sm mt-2">
-          Sign in to your account to continue
+    <>
+      <SEO title="Sign In" />
+      <div className="rounded-2xl bg-card border border-border p-8 shadow-xl">
+        <div className="text-center mb-8">
+          <h1 className="font-sans text-2xl font-bold">Welcome back</h1>
+          <p className="text-muted-foreground text-sm mt-2">
+            Sign in to your account to continue
+          </p>
+        </div>
+
+        {/* Google OAuth */}
+        <Button
+          variant="outline"
+          className="w-full rounded-xl h-12 text-sm font-medium"
+          onClick={handleGoogleOAuth}
+        >
+          <GoogleIcon className="size-5 mr-2" />
+          Continue with Google
+        </Button>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-card px-3 text-muted-foreground">
+              or continue with email
+            </span>
+          </div>
+        </div>
+
+        {/* Email/Password Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              className="rounded-xl h-12"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              <Link
+                href="/forgot-password"
+                className="text-xs text-lime hover:underline font-medium"
+              >
+                Forgot password?
+              </Link>
+            </div>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              className="rounded-xl h-12"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {error && (
+            <p className="text-sm text-destructive text-center">{error}</p>
+          )}
+
+          <Button
+            type="submit"
+            className="w-full rounded-xl h-12 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold text-sm"
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </Button>
+        </form>
+
+        {/* Terms */}
+        <p className="text-xs text-muted-foreground text-center mt-6 leading-relaxed">
+          By continuing, you agree to our{" "}
+          <a
+            href="https://appwrite.io/terms"
+            className="underline hover:text-foreground"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Terms of Service
+          </a>{" "}
+          and{" "}
+          <a
+            href="https://appwrite.io/privacy"
+            className="underline hover:text-foreground"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Privacy Policy
+          </a>
+          .
+        </p>
+
+        {/* Sign up link */}
+        <p className="text-sm text-center mt-6 text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/sign-up"
+            className="text-lime font-semibold hover:underline"
+          >
+            Sign up
+          </Link>
         </p>
       </div>
-
-      {/* Google OAuth */}
-      <Button
-        variant="outline"
-        className="w-full rounded-xl h-12 text-sm font-medium"
-        onClick={handleGoogleOAuth}
-      >
-        <GoogleIcon className="size-5 mr-2" />
-        Continue with Google
-      </Button>
-
-      {/* Divider */}
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs">
-          <span className="bg-card px-3 text-muted-foreground">
-            or continue with email
-          </span>
-        </div>
-      </div>
-
-      {/* Email/Password Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="you@example.com"
-            className="rounded-xl h-12"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
-            <Link
-              href="/forgot-password"
-              className="text-xs text-lime hover:underline font-medium"
-            >
-              Forgot password?
-            </Link>
-          </div>
-          <Input
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            className="rounded-xl h-12"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        {error && (
-          <p className="text-sm text-destructive text-center">{error}</p>
-        )}
-
-        <Button
-          type="submit"
-          className="w-full rounded-xl h-12 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold text-sm"
-          disabled={loading}
-        >
-          {loading ? "Signing in..." : "Sign in"}
-        </Button>
-      </form>
-
-      {/* Terms */}
-      <p className="text-xs text-muted-foreground text-center mt-6 leading-relaxed">
-        By continuing, you agree to our{" "}
-        <a
-          href="https://appwrite.io/terms"
-          className="underline hover:text-foreground"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Terms of Service
-        </a>{" "}
-        and{" "}
-        <a
-          href="https://appwrite.io/privacy"
-          className="underline hover:text-foreground"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Privacy Policy
-        </a>
-        .
-      </p>
-
-      {/* Sign up link */}
-      <p className="text-sm text-center mt-6 text-muted-foreground">
-        Don&apos;t have an account?{" "}
-        <Link
-          href="/sign-up"
-          className="text-lime font-semibold hover:underline"
-        >
-          Sign up
-        </Link>
-      </p>
-    </div>
+    </>
   );
 }
