@@ -4,8 +4,6 @@ import { tablesDB, storage, Query } from "@/lib/appwrite-server";
 import { galleryIdParamsSchema, filesBodySchema } from "@/lib/api-schemas";
 import type { Galleries } from "@/lib/generated/appwrite";
 
-const MAX_FILES = 1000;
-
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ galleryId: string }> },
@@ -72,13 +70,18 @@ export async function POST(
 
   const uniqueFileIds = uniqueAssets.map((a) => a.fileId);
 
-  // 6. Ensure all files exist in storage
-  const { files: existingFiles } = await storage.listFiles({
-    bucketId: "assets",
-    queries: [Query.equal("$id", uniqueFileIds), Query.limit(MAX_FILES)],
-  });
+  // 6. Ensure all files exist in storage (chunked to avoid URI Too Long)
+  const LIST_CHUNK = 100;
+  const existingIds = new Set<string>();
 
-  const existingIds = new Set(existingFiles.map((f) => f.$id));
+  for (let i = 0; i < uniqueFileIds.length; i += LIST_CHUNK) {
+    const chunk = uniqueFileIds.slice(i, i + LIST_CHUNK);
+    const { files } = await storage.listFiles({
+      bucketId: "assets",
+      queries: [Query.equal("$id", chunk), Query.limit(LIST_CHUNK)],
+    });
+    for (const f of files) existingIds.add(f.$id);
+  }
   const missingIds = uniqueFileIds.filter((id) => !existingIds.has(id));
 
   if (missingIds.length > 0) {

@@ -38,6 +38,7 @@ import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import "yet-another-react-lightbox/styles.css";
 import { decode, encode } from "blurhash";
 import JSZip from "jszip";
+import pLimit from "p-limit";
 
 import { ThemeContext } from "@/app/layout";
 import { SEO } from "@/components/seo";
@@ -353,13 +354,8 @@ export default function GalleryPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileStates, setFileStates] = useState<FileUploadState[]>([]);
-  const uploadedAssets = useRef<
-    Map<number, { fileId: string; blurhash: string }>
-  >(new Map());
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [finalizing, setFinalizing] = useState(false);
-  const [finalized, setFinalized] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   function triggerFileInput() {
@@ -371,10 +367,7 @@ export default function GalleryPage() {
     if (files.length === 0) return;
     setSelectedFiles(files);
     setFileStates(files.map(() => ({ status: "pending", progress: 0 })));
-    uploadedAssets.current = new Map();
     setUploading(false);
-    setFinalizing(false);
-    setFinalized(false);
     setUploadOpen(true);
     e.target.value = "";
   }
@@ -383,9 +376,6 @@ export default function GalleryPage() {
     setUploadOpen(false);
     setSelectedFiles([]);
     setFileStates([]);
-    uploadedAssets.current = new Map();
-    setFinalizing(false);
-    setFinalized(false);
   }
 
   function updateFileState(idx: number, update: Partial<FileUploadState>) {
@@ -402,6 +392,7 @@ export default function GalleryPage() {
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
+        // Upload file to storage (progress 0-90%)
         const result = await storage.createFile({
           bucketId: "assets",
           fileId: ID.unique(),
@@ -409,16 +400,26 @@ export default function GalleryPage() {
           onProgress: (progress: { sizeUploaded: number }) => {
             const pct =
               file.size > 0
-                ? Math.round((progress.sizeUploaded / file.size) * 100)
-                : 100;
+                ? Math.round((progress.sizeUploaded / file.size) * 90)
+                : 90;
             updateFileState(idx, { progress: pct });
           },
         });
+
+        // Generate blurhash (progress stays at 90%)
         const blurhash = await generateBlurhash(file);
-        uploadedAssets.current.set(idx, {
-          fileId: result.$id,
-          blurhash,
+        updateFileState(idx, { progress: 95 });
+
+        // Finalize: attach file to gallery via API
+        const res = await fetch(`/api/v1/galleries/${galleryId}/files`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            assets: [{ fileId: result.$id, blurhash }],
+          }),
         });
+        if (!res.ok) throw new Error("Failed to finalize file.");
+
         updateFileState(idx, { status: "done", progress: 100 });
         return true;
       } catch {
@@ -451,37 +452,9 @@ export default function GalleryPage() {
     initialLoadDone.current = false;
   }
 
-  async function finalizeUpload() {
-    const assets = Array.from(uploadedAssets.current.values());
-    if (assets.length === 0) {
-      setFinalized(true);
-      return;
-    }
-
-    setFinalizing(true);
-    try {
-      const res = await fetch(`/api/v1/galleries/${galleryId}/files`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assets }),
-      });
-      if (!res.ok) throw new Error("Failed to attach files to gallery.");
-      setFinalized(true);
-      await refreshAfterUpload();
-    } catch {
-      setUploadOpen(false);
-      setErrorMessage(
-        "Something went wrong while saving your uploads to the gallery. Your files were uploaded but may not appear yet.",
-      );
-    } finally {
-      setFinalizing(false);
-    }
-  }
-
   async function startUpload() {
     if (selectedFiles.length === 0) return;
     setUploading(true);
-    uploadedAssets.current = new Map();
     setFileStates(
       selectedFiles.map(() => ({ status: "pending", progress: 0 })),
     );
@@ -502,7 +475,7 @@ export default function GalleryPage() {
     await Promise.all(workers);
 
     setUploading(false);
-    await finalizeUpload();
+    await refreshAfterUpload();
   }
 
   async function retrySingleFile(idx: number) {
@@ -514,7 +487,7 @@ export default function GalleryPage() {
   const allFilesSettled =
     uploadedCount + failedCount > 0 &&
     uploadedCount + failedCount === selectedFiles.length;
-  const uploadDone = !uploading && !finalizing && finalized && allFilesSettled;
+  const uploadDone = !uploading && allFilesSettled;
 
   // Share helpers
   function getGalleryUrl() {
@@ -540,17 +513,33 @@ export default function GalleryPage() {
 
   // Download as ZIP
   const [zipGenerating, setZipGenerating] = useState(false);
+  const [zipProgress, setZipProgress] = useState(0);
+  const [zipError, setZipError] = useState<string | null>(null);
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
 
   async function downloadAsZip() {
     if (zipGenerating) return;
     setZipGenerating(true);
+    setZipProgress(0);
 
     try {
-      // 1. Fetch all asset rows by paginating in pages of 100
+      const galleryAssetsTable = databases.use("main").use("galleryAssets");
+
+      // 1. Fetch total count with a limit-1 query
+      const countResult = await galleryAssetsTable.list({
+        queries: (q) => [q.equal("galleryId", galleryId), q.limit(1)],
+      });
+      const expectedTotal = countResult.total;
+
+      if (expectedTotal === 0) {
+        setZipGenerating(false);
+        setDownloadMenuOpen(false);
+        return;
+      }
+
+      // 2. Fetch all asset rows by paginating in pages of 100
       const allAssets: GalleryAssets[] = [];
       let cursor: string | null = null;
-      const galleryAssetsTable = databases.use("main").use("galleryAssets");
 
       for (;;) {
         const result = await galleryAssetsTable.list({
@@ -578,65 +567,73 @@ export default function GalleryPage() {
         return;
       }
 
-      // 2. Download all files and add to ZIP
+      // 3. Download all files and add to ZIP with concurrency limit
       const zip = new JSZip();
       const seen = new Set<string>();
+      let filesAdded = 0;
+      const limit = pLimit(15);
 
       await Promise.all(
-        allAssets.map(async (asset) => {
-          try {
-            const url = storage.getFileDownload({
-              bucketId: "assets",
-              fileId: asset.fileId,
-            });
-            const res = await fetch(url);
-            if (!res.ok) {
-              console.error(
-                `[ZIP] Failed to fetch file ${asset.fileId}: ${res.status} ${res.statusText}`,
-              );
-              return;
-            }
-            const blob = await res.blob();
-            console.log(
-              `[ZIP] Downloaded ${asset.fileId}: ${blob.size} bytes, type=${blob.type}`,
-            );
+        allAssets.map((asset) =>
+          limit(async () => {
+            try {
+              const fileDetail = await storage.getFile({
+                bucketId: "assets",
+                fileId: asset.fileId,
+              });
+              const url = storage.getFileDownload({
+                bucketId: "assets",
+                fileId: asset.fileId,
+              });
+              const res = await fetch(url);
+              if (!res.ok) return;
+              const blob = await res.blob();
 
-            // Determine filename from Content-Disposition or fallback
-            let filename = asset.fileId;
-            const disposition = res.headers.get("content-disposition");
-            if (disposition) {
-              const match = disposition.match(
-                /filename\*?=(?:UTF-8''|"?)([^";]+)/i,
-              );
-              if (match) filename = decodeURIComponent(match[1]);
-            }
-
-            // Deduplicate filenames
-            let uniqueName = filename;
-            let counter = 1;
-            while (seen.has(uniqueName)) {
-              const dot = filename.lastIndexOf(".");
-              if (dot > 0) {
-                uniqueName = `${filename.slice(0, dot)} (${counter})${filename.slice(dot)}`;
-              } else {
-                uniqueName = `${filename} (${counter})`;
+              // Determine filename from Content-Disposition or fallback
+              let filename = fileDetail.name;
+              const disposition = res.headers.get("content-disposition");
+              if (disposition) {
+                const match = disposition.match(
+                  /filename\*?=(?:UTF-8''|"?)([^";]+)/i,
+                );
+                if (match) filename = decodeURIComponent(match[1]);
               }
-              counter++;
+
+              // Deduplicate filenames
+              let uniqueName = filename;
+              let counter = 1;
+              while (seen.has(uniqueName)) {
+                const dot = filename.lastIndexOf(".");
+                if (dot > 0) {
+                  uniqueName = `${filename.slice(0, dot)} (${counter})${filename.slice(dot)}`;
+                } else {
+                  uniqueName = `${filename} (${counter})`;
+                }
+                counter++;
+              }
+              seen.add(uniqueName);
+
+              zip.file(uniqueName, blob);
+              filesAdded++;
+              setZipProgress(Math.round((filesAdded / expectedTotal) * 100));
+            } catch {
+              // Skip failed files — mismatch check below will catch it
             }
-            seen.add(uniqueName);
-
-            zip.file(uniqueName, blob);
-          } catch (err) {
-            console.error(`[ZIP] Error downloading file ${asset.fileId}:`, err);
-          }
-        }),
+          }),
+        ),
       );
 
-      console.log(
-        `[ZIP] Added ${Object.keys(zip.files).length} files to archive`,
-      );
+      // 4. Verify file count matches expected total
+      if (filesAdded !== expectedTotal) {
+        setZipError(
+          `Only ${filesAdded} of ${expectedTotal} files could be added to the ZIP. Some files may have failed to download. Please try again.`,
+        );
+        setZipGenerating(false);
+        setDownloadMenuOpen(false);
+        return;
+      }
 
-      // 3. Generate and download the ZIP
+      // 5. Generate and download the ZIP
       const safeName = (
         state.status === "ready" ? state.gallery.name : "gallery"
       )
@@ -654,8 +651,10 @@ export default function GalleryPage() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("[ZIP] Failed to generate ZIP:", err);
+    } catch {
+      setZipError(
+        "Something went wrong while generating the ZIP file. Please try again.",
+      );
     } finally {
       setZipGenerating(false);
       setDownloadMenuOpen(false);
@@ -831,10 +830,13 @@ export default function GalleryPage() {
                   onSelect={(e) => e.preventDefault()}
                 >
                   {zipGenerating ? (
-                    <>
-                      <Loader2 className="size-4 mr-2 animate-spin" />
-                      Generating…
-                    </>
+                    <div className="flex flex-col gap-1.5 w-full py-0.5">
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="size-4 animate-spin shrink-0" />
+                        <span>Generating… {zipProgress}%</span>
+                      </div>
+                      <Progress value={zipProgress} className="h-1.5" />
+                    </div>
                   ) : (
                     <>
                       <Archive className="size-4 mr-2" />
@@ -1012,7 +1014,7 @@ export default function GalleryPage() {
       <Dialog
         open={uploadOpen}
         onOpenChange={(open) => {
-          if (!uploading && !finalizing) {
+          if (!uploading) {
             setUploadOpen(open);
             if (!open) resetUploadModal();
           }
@@ -1021,18 +1023,12 @@ export default function GalleryPage() {
         <DialogContent className="sm:max-w-lg max-h-[85dvh] flex flex-col">
           <DialogHeader>
             <DialogTitle>
-              {uploadDone
-                ? "Upload complete"
-                : finalizing
-                  ? "Finalizing…"
-                  : "Upload files"}
+              {uploadDone ? "Upload complete" : "Upload files"}
             </DialogTitle>
             <DialogDescription>
               {uploadDone
                 ? `${uploadedCount} of ${selectedFiles.length} file${selectedFiles.length === 1 ? "" : "s"} uploaded successfully${failedCount > 0 ? `, ${failedCount} failed` : ""}.`
-                : finalizing
-                  ? "Attaching files to the gallery…"
-                  : `${selectedFiles.length} file${selectedFiles.length === 1 ? "" : "s"} selected — ${formatFileSize(selectedFiles.reduce((s, f) => s + f.size, 0))} total`}
+                : `${selectedFiles.length} file${selectedFiles.length === 1 ? "" : "s"} selected — ${formatFileSize(selectedFiles.reduce((s, f) => s + f.size, 0))} total`}
             </DialogDescription>
           </DialogHeader>
 
@@ -1114,8 +1110,6 @@ export default function GalleryPage() {
           <div className="flex justify-end gap-2 pt-2">
             {uploadDone ? (
               <Button onClick={resetUploadModal}>Close</Button>
-            ) : finalizing ? (
-              <Button disabled>Finalizing…</Button>
             ) : (
               <>
                 <Button
@@ -1158,6 +1152,24 @@ export default function GalleryPage() {
           </DialogHeader>
           <div className="flex justify-end pt-2">
             <Button onClick={() => setErrorMessage(null)}>Close</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── ZIP error modal ─────────────────────────────── */}
+      <Dialog
+        open={zipError !== null}
+        onOpenChange={(open) => {
+          if (!open) setZipError(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Download error</DialogTitle>
+            <DialogDescription>{zipError}</DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end pt-2">
+            <Button onClick={() => setZipError(null)}>Close</Button>
           </div>
         </DialogContent>
       </Dialog>
