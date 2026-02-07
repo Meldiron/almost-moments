@@ -67,7 +67,7 @@ export default function DashboardLayout({
               href="/dashboard"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 isGalleries
-                  ? "bg-lime/15 text-lime"
+                  ? "bg-lime/25 text-lime-foreground dark:bg-lime/15 dark:text-lime"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent"
               }`}
             >
@@ -93,10 +93,10 @@ export default function DashboardLayout({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="size-9 rounded-full flex items-center justify-center bg-lime/15 hover:bg-lime/25 transition-colors"
+                  className="size-9 rounded-full flex items-center justify-center bg-lime/25 hover:bg-lime/35 dark:bg-lime/15 dark:hover:bg-lime/25 transition-colors"
                   aria-label="User menu"
                 >
-                  <User className="size-4 text-lime" />
+                  <User className="size-4 text-lime-foreground dark:text-lime" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
