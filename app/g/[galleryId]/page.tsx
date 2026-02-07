@@ -94,10 +94,13 @@ const BLURHASH_COMPONENTS_X = 4;
 const BLURHASH_COMPONENTS_Y = 3;
 const FALLBACK_BLURHASH = "LEHV6nWB2yk8pyo0adR*.7kCMdnj";
 
-function generateBlurhash(file: File): Promise<string> {
+type BlurhashResult = { blurhash: string; width: number; height: number };
+const FALLBACK_DIMENSIONS = { width: 800, height: 800 };
+
+function generateBlurhash(file: File): Promise<BlurhashResult> {
   return new Promise((resolve) => {
     if (isVideoFile(file.name)) {
-      resolve(FALLBACK_BLURHASH);
+      resolve({ blurhash: FALLBACK_BLURHASH, ...FALLBACK_DIMENSIONS });
       return;
     }
 
@@ -105,6 +108,8 @@ function generateBlurhash(file: File): Promise<string> {
     const url = URL.createObjectURL(file);
 
     img.onload = () => {
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
       try {
         const canvas = document.createElement("canvas");
         canvas.width = BLURHASH_SIZE;
@@ -119,9 +124,9 @@ function generateBlurhash(file: File): Promise<string> {
           BLURHASH_COMPONENTS_X,
           BLURHASH_COMPONENTS_Y,
         );
-        resolve(hash);
+        resolve({ blurhash: hash, width, height });
       } catch {
-        resolve(FALLBACK_BLURHASH);
+        resolve({ blurhash: FALLBACK_BLURHASH, width, height });
       } finally {
         URL.revokeObjectURL(url);
       }
@@ -129,7 +134,7 @@ function generateBlurhash(file: File): Promise<string> {
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      resolve(FALLBACK_BLURHASH);
+      resolve({ blurhash: FALLBACK_BLURHASH, ...FALLBACK_DIMENSIONS });
     };
 
     img.src = url;
@@ -406,8 +411,8 @@ export default function GalleryPage() {
           },
         });
 
-        // Generate blurhash (progress stays at 90%)
-        const blurhash = await generateBlurhash(file);
+        // Generate blurhash and measure dimensions (progress stays at 90%)
+        const { blurhash, width, height } = await generateBlurhash(file);
         updateFileState(idx, { progress: 95 });
 
         // Finalize: attach file to gallery via API
@@ -415,7 +420,10 @@ export default function GalleryPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            assets: [{ fileId: result.$id, blurhash }],
+            fileId: result.$id,
+            blurhash,
+            width,
+            height,
           }),
         });
         if (!res.ok) throw new Error("Failed to finalize file.");

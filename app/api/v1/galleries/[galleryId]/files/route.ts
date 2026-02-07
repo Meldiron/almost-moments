@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ID } from "node-appwrite";
-import { tablesDB, storage, Query } from "@/lib/appwrite-server";
+import { tablesDB, storage } from "@/lib/appwrite-server";
 import { galleryIdParamsSchema, filesBodySchema } from "@/lib/api-schemas";
 import type { Galleries } from "@/lib/generated/appwrite";
 
@@ -58,66 +58,41 @@ export async function POST(
     );
   }
 
-  const { assets } = bodyParsed.data;
+  const { fileId, blurhash, width, height } = bodyParsed.data;
 
-  // 5. Deduplicate by fileId (keep first occurrence)
-  const seen = new Set<string>();
-  const uniqueAssets = assets.filter((a) => {
-    if (seen.has(a.fileId)) return false;
-    seen.add(a.fileId);
-    return true;
-  });
-
-  const uniqueFileIds = uniqueAssets.map((a) => a.fileId);
-
-  // 6. Ensure all files exist in storage (chunked to avoid URI Too Long)
-  const LIST_CHUNK = 100;
-  const existingIds = new Set<string>();
-
-  for (let i = 0; i < uniqueFileIds.length; i += LIST_CHUNK) {
-    const chunk = uniqueFileIds.slice(i, i + LIST_CHUNK);
-    const { files } = await storage.listFiles({
-      bucketId: "assets",
-      queries: [Query.equal("$id", chunk), Query.limit(LIST_CHUNK)],
-    });
-    for (const f of files) existingIds.add(f.$id);
-  }
-  const missingIds = uniqueFileIds.filter((id) => !existingIds.has(id));
-
-  if (missingIds.length > 0) {
+  // 5. Ensure file exists in storage
+  try {
+    await storage.getFile({ bucketId: "assets", fileId });
+  } catch {
     return NextResponse.json(
-      { error: "Some file IDs were not found.", missingIds },
+      { error: "File not found.", fileId },
       { status: 404 },
     );
   }
 
-  // 7. Create gallery-asset rows in chunks of 100
-  const CHUNK_SIZE = 100;
-  const rows = uniqueAssets.map((asset) => ({
-    $id: ID.unique(),
-    fileId: asset.fileId,
-    blurhash: asset.blurhash,
-    width: 800,
-    height: 800,
-    galleryId: galleryId,
-  }));
-
-  for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
-    const chunk = rows.slice(i, i + CHUNK_SIZE);
-    await tablesDB.createRows({
-      databaseId: "main",
-      tableId: "gallery-assets",
-      rows: chunk,
-    });
-  }
+  // 6. Create gallery-asset row
+  await tablesDB.createRows({
+    databaseId: "main",
+    tableId: "gallery-assets",
+    rows: [
+      {
+        $id: ID.unique(),
+        fileId,
+        blurhash,
+        width,
+        height,
+        galleryId,
+      },
+    ],
+  });
 
   await tablesDB.incrementRowColumn({
     databaseId: "main",
     tableId: "galleries",
     rowId: galleryId,
     column: "totalAssets",
-    value: uniqueFileIds.length,
+    value: 1,
   });
 
-  return NextResponse.json({ created: uniqueFileIds.length }, { status: 201 });
+  return NextResponse.json({ created: 1 }, { status: 201 });
 }
