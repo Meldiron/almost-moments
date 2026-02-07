@@ -946,17 +946,17 @@ function FAQ() {
     {
       question: "Do guests need to create an account?",
       answer:
-        "No account needed. Guests can start uploading immediately — zero friction. The organizer can optionally create an account to manage their galleries.",
+        "No account needed. Guests can start uploading and downloading immediately — zero friction. The organizer is the only person who needs an account, to create and manage their galleries.",
     },
     {
-      question: "What types of files can guests upload?",
+      question: "What types and size of files can guests upload?",
       answer:
-        "Photos (JPG, PNG, HEIC, WebP) and videos (MP4, MOV) from their phone. We handle the compression and optimization automatically.",
+        "Photos (JPG, PNG, HEIC, WebP) and videos (MP4, MOV) from their phone. We handle the compression and optimization automatically. All files below 25MB are accepted.",
     },
     {
       question: "How long are galleries kept?",
       answer:
-        "Your gallery stays online for 30 days after your event. You can download all the photos at any time. Need more time? Just extend it for free.",
+        "Your gallery pictures and videos are never deleted by us*. You can choose to delete them anytime you want. All gallery links follow expiration you configure during gallery creation. *We reserve right to delete content in violation of our terms of service, but will try to reach out to you first.",
     },
     {
       question: "Is my gallery private?",

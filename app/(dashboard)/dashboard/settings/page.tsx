@@ -44,7 +44,7 @@ function isMFAChallengeRequired(err: unknown): boolean {
 
 // ─── Email Section ──────────────────────────────────────────────
 function EmailSection() {
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
   const [editing, setEditing] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,6 +58,7 @@ function EmailSection() {
     setLoading(true);
     try {
       await account.updateEmail(newEmail, password);
+      await refresh();
       setSuccess(true);
       setEditing(false);
       setNewEmail("");
@@ -91,7 +92,7 @@ function EmailSection() {
             <div className="flex flex-col sm:flex-row gap-3 max-w-md">
               <Input
                 type="email"
-                defaultValue={user?.email ?? ""}
+                value={user?.email ?? ""}
                 className="rounded-xl h-10"
                 readOnly
               />

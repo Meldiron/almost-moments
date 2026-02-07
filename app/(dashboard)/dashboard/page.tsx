@@ -47,8 +47,6 @@ import {
   Clock,
   AlertTriangle,
   CalendarDays,
-  ImagePlus,
-  Sparkles,
   FileText,
   Star,
 } from "lucide-react";
@@ -81,8 +79,6 @@ const FILTERS: {
   { id: "expired", label: "Expired", icon: AlertTriangle },
   { id: "expiring-soon", label: "Expiring soon", icon: Clock },
   { id: "created-this-year", label: "Created this year", icon: CalendarDays },
-  { id: "many-photos", label: "100+ photos", icon: ImagePlus },
-  { id: "never-expires", label: "Never expires", icon: Sparkles },
   { id: "no-photos", label: "Empty galleries", icon: ImageIcon },
   { id: "has-description", label: "Has description", icon: FileText },
 ];
@@ -90,8 +86,6 @@ const FILTERS: {
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: "created-desc", label: "Newest first" },
   { value: "created-asc", label: "Oldest first" },
-  { value: "expiry-desc", label: "Expiry: latest first" },
-  { value: "expiry-asc", label: "Expiry: soonest first" },
 ];
 
 function formatVerboseDate(date: Date): string {
@@ -179,6 +173,7 @@ export default function DashboardPage() {
   const [galleries, setGalleries] = useState<Galleries[]>([]);
   const [favouriteGalleries, setFavouriteGalleries] = useState<Galleries[]>([]);
   const [total, setTotal] = useState(0);
+  const [hasAnyGalleries, setHasAnyGalleries] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -484,6 +479,7 @@ export default function DashboardPage() {
         setGalleries(rows);
         setFavouriteGalleries(favs);
         setTotal(result.total);
+        if (result.total > 0 || favs.length > 0) setHasAnyGalleries(true);
         setHasMore(result.rows.length === PAGE_SIZE);
         setLoading(false);
       },
@@ -542,6 +538,7 @@ export default function DashboardPage() {
       );
       setGalleries((prev) => [gallery, ...prev]);
       setTotal((prev) => prev + 1);
+      setHasAnyGalleries(true);
       setOpen(false);
       resetForm();
     } catch (err: unknown) {
@@ -577,7 +574,10 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-sans text-2xl font-bold">My Galleries</h1>
-          {!loading && total > 0 && (
+          {loading && total === 0 && (
+            <div className="h-5 w-24 rounded bg-muted animate-pulse mt-1" />
+          )}
+          {total > 0 && (
             <p className="text-sm text-muted-foreground mt-1">
               {total} {total === 1 ? "gallery" : "galleries"}
             </p>
@@ -593,7 +593,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Search, filters, sort */}
-      {(total > 0 || hasFiltersActive) && (
+      {hasAnyGalleries && (
         <div className="space-y-3 mb-6">
           {/* Search + sort row */}
           <div className="flex items-center gap-3">
@@ -742,7 +742,10 @@ export default function DashboardPage() {
                       <div className="size-11 rounded-xl bg-muted flex items-center justify-center">
                         <Camera className="size-5 text-muted-foreground" />
                       </div>
-                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <div
+                        className="flex items-center gap-1.5 text-sm text-muted-foreground"
+                        title="Total memories"
+                      >
                         <ImageIcon className="size-3.5" />
                         <span className="font-medium">{photoCount}</span>
                       </div>
