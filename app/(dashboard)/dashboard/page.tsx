@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,6 +11,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -19,20 +26,112 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Image from "next/image";
 import { SEO } from "@/components/seo";
 import {
   Plus,
   Images,
   Info,
   Loader2,
-  Calendar,
-  ChevronRight,
+  Camera,
+  ImageIcon,
+  Share2,
+  QrCode,
+  Copy,
+  ExternalLink,
+  Check,
+  Eye,
+  Search,
+  ArrowUpDown,
+  X,
+  Clock,
+  AlertTriangle,
+  CalendarDays,
+  ImagePlus,
+  Sparkles,
+  FileText,
+  Star,
 } from "lucide-react";
+import QRCode from "qrcode";
 import { databases, type Galleries } from "@/lib/generated/appwrite";
+import { account } from "@/lib/appwrite";
 import { useAuth } from "@/lib/auth-context";
 
 const PAGE_SIZE = 12;
 const galleriesTable = databases.use("main").use("galleries");
+
+type FilterId =
+  | "favourites"
+  | "expired"
+  | "expiring-soon"
+  | "created-this-year"
+  | "many-photos"
+  | "never-expires"
+  | "no-photos"
+  | "has-description";
+
+type SortOption = "created-desc" | "created-asc" | "expiry-desc" | "expiry-asc";
+
+const FILTERS: {
+  id: FilterId;
+  label: string;
+  icon: React.ElementType;
+}[] = [
+  { id: "favourites", label: "Favourites only", icon: Star },
+  { id: "expired", label: "Expired", icon: AlertTriangle },
+  { id: "expiring-soon", label: "Expiring soon", icon: Clock },
+  { id: "created-this-year", label: "Created this year", icon: CalendarDays },
+  { id: "many-photos", label: "100+ photos", icon: ImagePlus },
+  { id: "never-expires", label: "Never expires", icon: Sparkles },
+  { id: "no-photos", label: "Empty galleries", icon: ImageIcon },
+  { id: "has-description", label: "Has description", icon: FileText },
+];
+
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: "created-desc", label: "Newest first" },
+  { value: "created-asc", label: "Oldest first" },
+  { value: "expiry-desc", label: "Expiry: latest first" },
+  { value: "expiry-asc", label: "Expiry: soonest first" },
+];
+
+function formatVerboseDate(date: Date): string {
+  const day = date.getDate();
+  const suffix =
+    day % 10 === 1 && day !== 11
+      ? "st"
+      : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+          ? "rd"
+          : "th";
+  const month = date.toLocaleDateString("en-US", { month: "short" });
+  return `${day}${suffix} ${month} ${date.getFullYear()}`;
+}
+
+function formatNum(n: number): string {
+  const rounded = Math.round(n * 10) / 10;
+  return rounded % 1 === 0 ? String(Math.round(rounded)) : String(rounded);
+}
+
+function formatRelativeExpiry(expiryAt: string): string {
+  const now = Date.now();
+  const expiry = new Date(expiryAt).getTime();
+  const diffMs = expiry - now;
+  if (diffMs <= 0) return "Expired";
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+  if (diffDays < 1) return "in less than a day";
+  if (diffDays < 14)
+    return `in ${Math.round(diffDays)} day${Math.round(diffDays) === 1 ? "" : "s"}`;
+  const diffMonths = diffDays / 30.44;
+  if (diffMonths < 1) {
+    const diffWeeks = diffDays / 7;
+    return `in ${formatNum(diffWeeks)} weeks`;
+  }
+  if (diffMonths < 12)
+    return `in ${formatNum(diffMonths)} month${Math.round(diffMonths * 10) / 10 === 1 ? "" : "s"}`;
+  const diffYears = diffDays / 365.25;
+  return `in ${formatNum(diffYears)} year${Math.round(diffYears * 10) / 10 === 1 ? "" : "s"}`;
+}
 
 function computeExpiryDate(
   duration: string,
@@ -67,13 +166,110 @@ function computeExpiryDate(
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const router = useRouter();
+
+  // Search, filter, sort state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [activeFilters, setActiveFilters] = useState<Set<FilterId>>(new Set());
+  const [sortOption, setSortOption] = useState<SortOption>("created-desc");
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   // Gallery list state
   const [galleries, setGalleries] = useState<Galleries[]>([]);
+  const [favouriteGalleries, setFavouriteGalleries] = useState<Galleries[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
+
+  // Favourites state
+  const [favouriteIds, setFavouriteIds] = useState<Set<string>>(new Set());
+
+  // Load favourites from user prefs
+  useEffect(() => {
+    if (!user) return;
+    const ids: string[] =
+      ((user.prefs as Record<string, unknown>)?.favouriteGalleryIds as
+        | string[]
+        | undefined) ?? [];
+    setFavouriteIds(new Set(ids));
+  }, [user]);
+
+  async function toggleFavourite(galleryId: string) {
+    const wasFavourite = favouriteIds.has(galleryId);
+    const next = new Set(favouriteIds);
+    if (wasFavourite) {
+      next.delete(galleryId);
+    } else {
+      next.add(galleryId);
+    }
+    setFavouriteIds(next);
+
+    // Update local favouriteGalleries list
+    if (wasFavourite) {
+      setFavouriteGalleries((prev) => prev.filter((g) => g.$id !== galleryId));
+    } else {
+      // Move from regular list to favourites
+      const gallery = galleries.find((g) => g.$id === galleryId);
+      if (gallery) {
+        setFavouriteGalleries((prev) => [...prev, gallery]);
+      }
+    }
+
+    try {
+      await account.updatePrefs({
+        ...user?.prefs,
+        favouriteGalleryIds: Array.from(next),
+      });
+    } catch {
+      // Revert on failure
+      setFavouriteIds(favouriteIds);
+      if (wasFavourite) {
+        const gallery = galleries.find((g) => g.$id === galleryId);
+        if (gallery) {
+          setFavouriteGalleries((prev) => [...prev, gallery]);
+        }
+      } else {
+        setFavouriteGalleries((prev) =>
+          prev.filter((g) => g.$id !== galleryId),
+        );
+      }
+    }
+  }
+
+  // QR modal state
+  const [qrOpen, setQrOpen] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const [qrGalleryName, setQrGalleryName] = useState("");
+  const [copied, setCopied] = useState<string | null>(null);
+
+  function getGalleryUrl(galleryId: string) {
+    return `${window.location.origin}/g/${galleryId}`;
+  }
+
+  async function openQrModal(gallery: Galleries) {
+    const url = getGalleryUrl(gallery.$id);
+    const dataUrl = await QRCode.toDataURL(url, {
+      width: 400,
+      margin: 2,
+      color: { dark: "#000000", light: "#ffffff" },
+    });
+    setQrDataUrl(dataUrl);
+    setQrGalleryName(gallery.name);
+    setQrOpen(true);
+  }
+
+  async function copyLink(galleryId: string) {
+    const url = getGalleryUrl(galleryId);
+    await navigator.clipboard.writeText(url);
+    setCopied(galleryId);
+    setTimeout(() => setCopied(null), 2000);
+  }
+
+  function openLink(galleryId: string) {
+    window.open(getGalleryUrl(galleryId), "_blank");
+  }
 
   // Create modal state
   const [open, setOpen] = useState(false);
@@ -84,39 +280,229 @@ export default function DashboardPage() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchGalleries = useCallback(async (cursor?: string) => {
+  // Debounce search input
+  function handleSearchChange(value: string) {
+    setSearchQuery(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(value.trim());
+    }, 300);
+  }
+
+  function toggleFilter(id: FilterId) {
+    setActiveFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  function clearAllFilters() {
+    setActiveFilters(new Set());
+    setSearchQuery("");
+    setDebouncedSearch("");
+  }
+
+  // Client-side filter for things Appwrite can't query (assets count, favourites, etc.)
+  function applyClientFilters(rows: Galleries[]): Galleries[] {
+    let filtered = rows;
+    for (const filterId of activeFilters) {
+      switch (filterId) {
+        case "many-photos":
+          filtered = filtered.filter((g) => (g.assets?.length ?? 0) >= 100);
+          break;
+        case "no-photos":
+          filtered = filtered.filter((g) => (g.assets?.length ?? 0) === 0);
+          break;
+        case "has-description":
+          filtered = filtered.filter(
+            (g) => g.description && g.description.trim().length > 0,
+          );
+          break;
+      }
+    }
+    return filtered;
+  }
+
+  const needsClientFilter =
+    activeFilters.has("many-photos") ||
+    activeFilters.has("no-photos") ||
+    activeFilters.has("has-description");
+
+  function buildServerQueries(
+    q: Parameters<
+      NonNullable<
+        NonNullable<Parameters<typeof galleriesTable.list>[0]>["queries"]
+      >
+    >[0],
+    cursor?: string,
+  ): string[] {
+    const queries: string[] = [];
+
+    // Search
+    if (debouncedSearch) {
+      queries.push(
+        q.or(
+          q.search("name", debouncedSearch),
+          q.search("description", debouncedSearch),
+        ),
+      );
+    }
+
+    // Server-side filters
+    const now = new Date().toISOString();
+    for (const filterId of activeFilters) {
+      switch (filterId) {
+        case "expired":
+          queries.push(q.lessThan("expiryAt", now));
+          queries.push(q.isNotNull("expiryAt"));
+          break;
+        case "expiring-soon": {
+          const soon = new Date();
+          soon.setDate(soon.getDate() + 7);
+          queries.push(q.greaterThanEqual("expiryAt", now));
+          queries.push(q.lessThanEqual("expiryAt", soon.toISOString()));
+          break;
+        }
+        case "created-this-year": {
+          const yearStart = new Date(
+            new Date().getFullYear(),
+            0,
+            1,
+          ).toISOString();
+          queries.push(q.greaterThanEqual("$createdAt", yearStart));
+          break;
+        }
+        case "never-expires":
+          queries.push(q.isNull("expiryAt"));
+          break;
+      }
+    }
+
+    // Sort
+    switch (sortOption) {
+      case "created-desc":
+        queries.push(q.orderDesc("$createdAt"));
+        break;
+      case "created-asc":
+        queries.push(q.orderAsc("$createdAt"));
+        break;
+      case "expiry-desc":
+        queries.push(q.orderDesc("expiryAt"));
+        break;
+      case "expiry-asc":
+        queries.push(q.orderAsc("expiryAt"));
+        break;
+    }
+
+    queries.push(q.limit(PAGE_SIZE));
+    if (cursor) queries.push(q.cursorAfter(cursor));
+    return queries;
+  }
+
+  const fetchGalleries = useCallback(
+    async (cursor?: string) => {
+      return galleriesTable.list({
+        queries: (q) => buildServerQueries(q, cursor),
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [debouncedSearch, activeFilters, sortOption],
+  );
+
+  const fetchFavourites = useCallback(async () => {
+    if (favouriteIds.size === 0) return [];
+    const ids = Array.from(favouriteIds);
     const result = await galleriesTable.list({
       queries: (q) => {
-        const queries = [q.orderDesc("$createdAt"), q.limit(PAGE_SIZE)];
-        if (cursor) queries.push(q.cursorAfter(cursor));
+        const queries: string[] = [q.equal("$id", ids as unknown as string)];
+
+        // Apply the same server-side filters + search so favourites respect them
+        if (debouncedSearch) {
+          queries.push(
+            q.or(
+              q.search("name", debouncedSearch),
+              q.search("description", debouncedSearch),
+            ),
+          );
+        }
+
+        const now = new Date().toISOString();
+        for (const filterId of activeFilters) {
+          switch (filterId) {
+            case "expired":
+              queries.push(q.lessThan("expiryAt", now));
+              queries.push(q.isNotNull("expiryAt"));
+              break;
+            case "expiring-soon": {
+              const soon = new Date();
+              soon.setDate(soon.getDate() + 7);
+              queries.push(q.greaterThanEqual("expiryAt", now));
+              queries.push(q.lessThanEqual("expiryAt", soon.toISOString()));
+              break;
+            }
+            case "created-this-year": {
+              const yearStart = new Date(
+                new Date().getFullYear(),
+                0,
+                1,
+              ).toISOString();
+              queries.push(q.greaterThanEqual("$createdAt", yearStart));
+              break;
+            }
+            case "never-expires":
+              queries.push(q.isNull("expiryAt"));
+              break;
+          }
+        }
+
+        queries.push(q.limit(25));
         return queries;
       },
     });
-    return result;
-  }, []);
+    let rows = result.rows;
+    if (needsClientFilter) rows = applyClientFilters(rows);
+    return rows;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [favouriteIds, debouncedSearch, activeFilters]);
 
-  // Initial load
+  // Re-fetch when search/filter/sort/favourites changes
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetchGalleries().then((result) => {
-      if (cancelled) return;
-      setGalleries(result.rows);
-      setTotal(result.total);
-      setHasMore(result.rows.length === PAGE_SIZE);
-      setLoading(false);
-    });
+
+    Promise.all([fetchGalleries(), fetchFavourites()]).then(
+      ([result, favs]) => {
+        if (cancelled) return;
+        const rows = needsClientFilter
+          ? applyClientFilters(result.rows)
+          : result.rows;
+        setGalleries(rows);
+        setFavouriteGalleries(favs);
+        setTotal(result.total);
+        setHasMore(result.rows.length === PAGE_SIZE);
+        setLoading(false);
+      },
+    );
     return () => {
       cancelled = true;
     };
-  }, [fetchGalleries]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchGalleries, fetchFavourites]);
 
   async function loadMore() {
     if (!galleries.length) return;
     setLoadingMore(true);
     const lastId = galleries[galleries.length - 1].$id;
     const result = await fetchGalleries(lastId);
-    setGalleries((prev) => [...prev, ...result.rows]);
+    const rows = needsClientFilter
+      ? applyClientFilters(result.rows)
+      : result.rows;
+    setGalleries((prev) => [...prev, ...rows]);
     setHasMore(result.rows.length === PAGE_SIZE);
     setLoadingMore(false);
   }
@@ -167,7 +553,22 @@ export default function DashboardPage() {
     }
   }
 
-  const isEmpty = !loading && galleries.length === 0;
+  const hasFiltersActive = activeFilters.size > 0 || debouncedSearch.length > 0;
+
+  // When "Favourites only" filter is active, only show favourite galleries
+  const showFavouritesOnly = activeFilters.has("favourites");
+
+  // Deduplicated regular galleries (exclude ones already in favourites)
+  const favIdSet = new Set(favouriteGalleries.map((g) => g.$id));
+  const regularGalleries = showFavouritesOnly
+    ? []
+    : galleries.filter((g) => !favIdSet.has(g.$id));
+
+  // Combined list for empty-state checks
+  const allVisible = [...favouriteGalleries, ...regularGalleries];
+  const isEmpty =
+    !loading && allVisible.length === 0 && total === 0 && !hasFiltersActive;
+  const noResults = !loading && allVisible.length === 0 && hasFiltersActive;
 
   return (
     <div>
@@ -190,6 +591,79 @@ export default function DashboardPage() {
           Create Gallery
         </Button>
       </div>
+
+      {/* Search, filters, sort */}
+      {(total > 0 || hasFiltersActive) && (
+        <div className="space-y-3 mb-6">
+          {/* Search + sort row */}
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Search galleries..."
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-9 rounded-xl h-10"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => handleSearchChange("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
+            </div>
+            <Select
+              value={sortOption}
+              onValueChange={(v) => setSortOption(v as SortOption)}
+            >
+              <SelectTrigger className="w-[180px] rounded-xl h-10">
+                <ArrowUpDown className="size-3.5 mr-1.5 text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Filter chips */}
+          <div className="flex flex-wrap items-center gap-2">
+            {FILTERS.map((filter) => {
+              const isActive = activeFilters.has(filter.id);
+              const Icon = filter.icon;
+              return (
+                <button
+                  key={filter.id}
+                  onClick={() => toggleFilter(filter.id)}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-foreground text-background"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  <Icon className="size-3.5" />
+                  {filter.label}
+                </button>
+              );
+            })}
+            {(activeFilters.size > 0 || debouncedSearch) && (
+              <button
+                onClick={clearAllFilters}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="size-3.5" />
+                Clear all
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Loading state */}
       {loading && (
@@ -221,52 +695,167 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Gallery list */}
-      {!loading && galleries.length > 0 && (
-        <div className="space-y-3">
-          {galleries.map((gallery) => {
-            const isExpired =
-              gallery.expiryAt && new Date(gallery.expiryAt) < new Date();
-            const expiryLabel = gallery.expiryAt
-              ? isExpired
-                ? "Expired"
-                : `Expires ${new Date(gallery.expiryAt).toLocaleDateString()}`
-              : "Never expires";
+      {/* No results for filters */}
+      {noResults && (
+        <div className="rounded-2xl border border-dashed border-border p-12 text-center">
+          <div className="size-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-5">
+            <Search className="size-8 text-muted-foreground" />
+          </div>
+          <h2 className="font-sans text-lg font-semibold mb-2">
+            No galleries found
+          </h2>
+          <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-6">
+            Try adjusting your search or filters to find what you&apos;re
+            looking for.
+          </p>
+          <Button
+            onClick={clearAllFilters}
+            variant="outline"
+            className="rounded-full"
+          >
+            <X className="size-4 mr-1.5" />
+            Clear all filters
+          </Button>
+        </div>
+      )}
 
-            return (
-              <div
-                key={gallery.$id}
-                className="group rounded-2xl border border-border bg-card p-5 sm:p-6 flex items-center gap-4 hover:border-lime/40 transition-colors cursor-pointer"
-              >
-                <div className="size-12 rounded-xl bg-lime/15 flex items-center justify-center shrink-0">
-                  <Images className="size-5 text-lime" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-sans font-semibold truncate">
+      {/* Gallery grid */}
+      {!loading && allVisible.length > 0 && (
+        <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {allVisible.map((gallery) => {
+              const photoCount = gallery.assets?.length ?? 0;
+              const isExpired =
+                gallery.expiryAt && new Date(gallery.expiryAt) < new Date();
+              const expiryLabel = gallery.expiryAt
+                ? formatRelativeExpiry(gallery.expiryAt)
+                : "Never";
+
+              return (
+                <div
+                  key={gallery.$id}
+                  className="group relative flex flex-col rounded-2xl border border-border bg-card p-5 transition-colors hover:border-foreground/20"
+                >
+                  {/* Icon + photo count + favourite */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="size-11 rounded-xl bg-muted flex items-center justify-center">
+                        <Camera className="size-5 text-muted-foreground" />
+                      </div>
+                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <ImageIcon className="size-3.5" />
+                        <span className="font-medium">{photoCount}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => toggleFavourite(gallery.$id)}
+                      className="transition-colors"
+                    >
+                      <Star
+                        className={`size-5 ${
+                          favouriteIds.has(gallery.$id)
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-muted-foreground/40 hover:text-amber-400"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Name */}
+                  <h3 className="font-sans font-bold text-lg truncate mb-1">
                     {gallery.name}
                   </h3>
-                  <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="size-3.5" />
-                      {new Date(gallery.$createdAt).toLocaleDateString()}
-                    </span>
-                    <span
-                      className={
-                        isExpired ? "text-destructive" : "text-muted-foreground"
+
+                  {/* Description */}
+                  {gallery.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                      {gallery.description}
+                    </p>
+                  )}
+                  {!gallery.description && <div className="mb-3" />}
+
+                  {/* Footer metadata */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-[11px] text-muted-foreground/60 font-medium uppercase tracking-wide">
+                        Created on
+                      </p>
+                      <p className="text-xs text-muted-foreground font-medium">
+                        {formatVerboseDate(new Date(gallery.$createdAt))}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[11px] text-muted-foreground/60 font-medium uppercase tracking-wide">
+                        Expires
+                      </p>
+                      <p
+                        className={`text-xs font-medium ${isExpired ? "text-destructive" : "text-muted-foreground"}`}
+                      >
+                        {expiryLabel}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Actions — pinned to bottom */}
+                  <div className="mt-auto flex items-center gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="sm"
+                          className="rounded-lg bg-lime text-lime-foreground hover:bg-lime/90 font-semibold flex-1"
+                        >
+                          <Share2 className="size-4 mr-1.5" />
+                          Share
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-44">
+                        <DropdownMenuItem
+                          onClick={() => openQrModal(gallery)}
+                          className="cursor-pointer"
+                        >
+                          <QrCode className="size-4 mr-2" />
+                          QR code
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => copyLink(gallery.$id)}
+                          className="cursor-pointer"
+                        >
+                          {copied === gallery.$id ? (
+                            <Check className="size-4 mr-2 text-lime" />
+                          ) : (
+                            <Copy className="size-4 mr-2" />
+                          )}
+                          {copied === gallery.$id ? "Copied!" : "Copy link"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => openLink(gallery.$id)}
+                          className="cursor-pointer"
+                        >
+                          <ExternalLink className="size-4 mr-2" />
+                          Open link
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-lg flex-1"
+                      onClick={() =>
+                        router.push(`/dashboard/gallery-${gallery.$id}`)
                       }
                     >
-                      {expiryLabel}
-                    </span>
+                      <Eye className="size-4 mr-1.5" />
+                      View
+                    </Button>
                   </div>
                 </div>
-                <ChevronRight className="size-5 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
 
           {/* Load more */}
-          {hasMore && (
-            <div className="flex justify-center pt-4">
+          {hasMore && !showFavouritesOnly && (
+            <div className="flex justify-center pt-8">
               <Button
                 variant="outline"
                 onClick={loadMore}
@@ -402,6 +991,31 @@ export default function DashboardPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* QR code modal */}
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>QR Code</DialogTitle>
+            <DialogDescription>{qrGalleryName}</DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center py-4">
+            {qrDataUrl && (
+              <Image
+                src={qrDataUrl}
+                alt={`QR code for ${qrGalleryName}`}
+                width={256}
+                height={256}
+                unoptimized
+                className="rounded-xl"
+              />
+            )}
+          </div>
+          <p className="text-center text-sm text-muted-foreground">
+            Guests can scan this code to open the gallery and upload photos.
+          </p>
         </DialogContent>
       </Dialog>
     </div>
