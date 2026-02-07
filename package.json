@@ -10,8 +10,6 @@
     "format": "npx prettier --write ."
   },
   "dependencies": {
-    "@types/jszip": "^3.4.1",
-    "@types/qrcode": "^1.5.6",
     "appwrite": "^22.0.0",
     "blurhash": "^2.0.5",
     "class-variance-authority": "^0.7.1",
@@ -31,6 +29,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@types/jszip": "^3.4.1",
+    "@types/qrcode": "^1.5.6",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
