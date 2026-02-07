@@ -50,7 +50,9 @@ export default function SignUpPage() {
       router.push("/dashboard");
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Failed to create account. Please try again.";
+        err instanceof Error
+          ? err.message
+          : "Failed to create account. Please try again.";
       setError(message);
     } finally {
       setLoading(false);
@@ -62,7 +64,7 @@ export default function SignUpPage() {
     account.createOAuth2Token(
       OAuthProvider.Google,
       `${origin}/oauth/callback`,
-      `${origin}/sign-up`
+      `${origin}/sign-up`,
     );
   }
 

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "format": "prettier --write ."
+    "format": "npx prettier --write ."
   },
   "dependencies": {
     "appwrite": "^22.0.0",

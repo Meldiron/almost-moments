@@ -47,7 +47,10 @@ export default function SignInPage() {
       await account.createEmailPasswordSession(email, password);
       router.push("/dashboard");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to sign in. Please try again.";
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Failed to sign in. Please try again.";
       setError(message);
     } finally {
       setLoading(false);
@@ -59,7 +62,7 @@ export default function SignInPage() {
     account.createOAuth2Token(
       OAuthProvider.Google,
       `${origin}/oauth/callback`,
-      `${origin}/sign-in`
+      `${origin}/sign-in`,
     );
   }
 

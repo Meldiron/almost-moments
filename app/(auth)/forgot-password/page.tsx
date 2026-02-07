@@ -24,12 +24,14 @@ export default function ForgotPasswordPage() {
       await account.createMagicURLToken(
         ID.unique(),
         email,
-        `${origin}/magic-link/callback`
+        `${origin}/magic-link/callback`,
       );
       setSuccess(true);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Failed to send reset link. Please try again.";
+        err instanceof Error
+          ? err.message
+          : "Failed to send reset link. Please try again.";
       setError(message);
     } finally {
       setLoading(false);
@@ -44,8 +46,9 @@ export default function ForgotPasswordPage() {
         </div>
         <h1 className="font-sans text-2xl font-bold">Check your email</h1>
         <p className="text-muted-foreground text-sm mt-3 leading-relaxed">
-          We sent a magic link to <span className="font-semibold text-foreground">{email}</span>.
-          Click the link in the email to sign in.
+          We sent a magic link to{" "}
+          <span className="font-semibold text-foreground">{email}</span>. Click
+          the link in the email to sign in.
         </p>
         <p className="text-sm text-center mt-8">
           <Link

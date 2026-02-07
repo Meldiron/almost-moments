@@ -26,7 +26,9 @@ function MagicLinkCallbackContent() {
       })
       .catch((err) => {
         const message =
-          err instanceof Error ? err.message : "This link has expired or is invalid. Please request a new one.";
+          err instanceof Error
+            ? err.message
+            : "This link has expired or is invalid. Please request a new one.";
         setError(message);
       });
   }, [searchParams, router]);
@@ -35,7 +37,10 @@ function MagicLinkCallbackContent() {
     return (
       <div className="rounded-2xl bg-card border border-border p-8 shadow-xl text-center">
         <p className="text-sm text-destructive mb-4">{error}</p>
-        <a href="/forgot-password" className="text-sm text-lime font-semibold hover:underline">
+        <a
+          href="/forgot-password"
+          className="text-sm text-lime font-semibold hover:underline"
+        >
           Request a new link
         </a>
       </div>

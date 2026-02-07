@@ -33,8 +33,10 @@ export default function AuthLayout({
       <div
         className="absolute inset-0 pattern-dots-lime"
         style={{
-          maskImage: "radial-gradient(ellipse at center, transparent 20%, black 75%)",
-          WebkitMaskImage: "radial-gradient(ellipse at center, transparent 20%, black 75%)",
+          maskImage:
+            "radial-gradient(ellipse at center, transparent 20%, black 75%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse at center, transparent 20%, black 75%)",
         }}
       />
 

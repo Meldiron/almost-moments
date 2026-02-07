@@ -1,3 +1,5 @@
+**Make sure to read README.md too**
+
 # AGENTS.md — Almost Moments
 
 ## What We're Building
@@ -25,17 +27,17 @@ The goal is simple: when a group of people attend an event, everyone captures di
 
 ## Tech Stack
 
-| Technology | Version | Purpose |
-|---|---|---|
-| Next.js | 16.1.6 | Framework (App Router, client-side only) |
-| React | 19.2.3 | UI library |
-| TypeScript | 5.x | Type safety |
-| Tailwind CSS | 4.x | Utility-first styling (PostCSS plugin) |
-| shadcn/ui | latest | Component library (New York style) |
-| Radix UI | 1.4.x | Accessible primitives (via shadcn/ui) |
-| Lucide React | 0.563.x | Icon library |
-| class-variance-authority | 0.7.x | Component variant management |
-| clsx + tailwind-merge | latest | Conditional class merging |
+| Technology               | Version | Purpose                                  |
+| ------------------------ | ------- | ---------------------------------------- |
+| Next.js                  | 16.1.6  | Framework (App Router, client-side only) |
+| React                    | 19.2.3  | UI library                               |
+| TypeScript               | 5.x     | Type safety                              |
+| Tailwind CSS             | 4.x     | Utility-first styling (PostCSS plugin)   |
+| shadcn/ui                | latest  | Component library (New York style)       |
+| Radix UI                 | 1.4.x   | Accessible primitives (via shadcn/ui)    |
+| Lucide React             | 0.563.x | Icon library                             |
+| class-variance-authority | 0.7.x   | Component variant management             |
+| clsx + tailwind-merge    | latest  | Conditional class merging                |
 
 ## Client-Side Only Architecture
 
@@ -118,11 +120,13 @@ Common components you may need:
 2. **Installed components** live in `@/components/ui/` and can be customized directly since they are copied into the project.
 3. **Compose complex components** by combining shadcn/ui primitives rather than building from scratch.
 4. **Use the `cn()` utility** from `@/lib/utils` for merging Tailwind classes conditionally:
+
    ```tsx
    import { cn } from "@/lib/utils";
 
-   <div className={cn("base-classes", conditional && "conditional-classes")} />
+   <div className={cn("base-classes", conditional && "conditional-classes")} />;
    ```
+
 5. **Variants** are managed via `class-variance-authority` (CVA). Extend existing component variants rather than overriding styles inline.
 
 ### Currently Installed Components
@@ -158,6 +162,7 @@ border-border, ring-ring, bg-input
 ### Fonts
 
 The project uses Geist font family (loaded via `next/font/google`):
+
 - `font-sans` — Geist Sans (variable: `--font-geist-sans`)
 - `font-mono` — Geist Mono (variable: `--font-geist-mono`)
 

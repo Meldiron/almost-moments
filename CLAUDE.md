@@ -1,3 +1,5 @@
+**Make sure to read AGENTS.md too.**
+
 # Claude Rules
 
 ## Verification

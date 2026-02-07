@@ -2,7 +2,12 @@
 
 import { Sora, DM_Sans } from "next/font/google";
 import "./globals.css";
-import { useState, useEffect, createContext, useContext } from "react";
+import {
+  useState,
+  useSyncExternalStore,
+  createContext,
+  useContext,
+} from "react";
 import { AuthProvider } from "@/lib/auth-context";
 
 const sora = Sora({
@@ -36,23 +41,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [isDark, setIsDark] = useState(true);
+  const [, forceRender] = useState(0);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("almost-moments-theme");
-    if (stored) {
-      setIsDark(stored === "dark");
-    } else {
-      setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
-    }
-  }, []);
+  const isDark = useSyncExternalStore(
+    (cb) => {
+      window.addEventListener("storage", cb);
+      return () => window.removeEventListener("storage", cb);
+    },
+    () => {
+      const stored = localStorage.getItem("almost-moments-theme");
+      if (stored) return stored === "dark";
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    },
+    () => true,
+  );
 
   const toggle = () => {
-    setIsDark((prev) => {
-      const next = !prev;
-      localStorage.setItem("almost-moments-theme", next ? "dark" : "light");
-      return next;
-    });
+    const next = !isDark;
+    localStorage.setItem("almost-moments-theme", next ? "dark" : "light");
+    forceRender((n) => n + 1);
   };
 
   return (

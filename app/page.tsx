@@ -25,7 +25,6 @@ import {
   Sun,
   Moon,
   ChevronRight,
-  Star,
   Heart,
   Sparkles,
   Globe,
@@ -49,7 +48,7 @@ function useInView(threshold = 0.15) {
           obs.unobserve(el);
         }
       },
-      { threshold }
+      { threshold },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -111,13 +110,22 @@ function Navbar() {
         </a>
 
         <div className="hidden md:flex items-center gap-8">
-          <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <a
+            href="#how-it-works"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             How It Works
           </a>
-          <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <a
+            href="#features"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             Features
           </a>
-          <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <a
+            href="#faq"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             FAQ
           </a>
         </div>
@@ -132,7 +140,10 @@ function Navbar() {
           </button>
 
           <Link href={user ? "/dashboard" : "/sign-in"}>
-            <Button size="sm" className="hidden md:inline-flex rounded-full px-5 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold">
+            <Button
+              size="sm"
+              className="hidden md:inline-flex rounded-full px-5 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold"
+            >
               {user ? "My Galleries" : "Sign in"}
             </Button>
           </Link>
@@ -142,20 +153,36 @@ function Navbar() {
             className="md:hidden size-9 rounded-full flex items-center justify-center bg-secondary hover:bg-accent transition-colors"
             aria-label="Menu"
           >
-            {mobileOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+            {mobileOpen ? (
+              <X className="size-4" />
+            ) : (
+              <Menu className="size-4" />
+            )}
           </button>
         </div>
       </div>
 
       {mobileOpen && (
         <div className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border px-6 pb-6 pt-2 flex flex-col gap-4 animate-slide-up">
-          <a href="#how-it-works" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground py-2">
+          <a
+            href="#how-it-works"
+            onClick={() => setMobileOpen(false)}
+            className="text-sm text-muted-foreground hover:text-foreground py-2"
+          >
             How It Works
           </a>
-          <a href="#features" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground py-2">
+          <a
+            href="#features"
+            onClick={() => setMobileOpen(false)}
+            className="text-sm text-muted-foreground hover:text-foreground py-2"
+          >
             Features
           </a>
-          <a href="#faq" onClick={() => setMobileOpen(false)} className="text-sm text-muted-foreground hover:text-foreground py-2">
+          <a
+            href="#faq"
+            onClick={() => setMobileOpen(false)}
+            className="text-sm text-muted-foreground hover:text-foreground py-2"
+          >
             FAQ
           </a>
           <Link href={user ? "/dashboard" : "/sign-in"}>
@@ -196,7 +223,7 @@ const galleries = [
     floatText: "+24 photos",
     floatSub: "just uploaded",
     guestCount: "58 guests",
-    leftCardTop: 160,    // px from top
+    leftCardTop: 160, // px from top
     rightCardBottom: 140, // px from bottom
   },
   {
@@ -285,14 +312,18 @@ const galleries = [
   },
 ];
 
-function GalleryScreen({ gallery }: { gallery: typeof galleries[number] }) {
+function GalleryScreen({ gallery }: { gallery: (typeof galleries)[number] }) {
   return (
     <div className="w-full flex-shrink-0 flex flex-col">
       {/* Gallery header */}
       <div className="px-4 pt-3 pb-4">
         <div className="text-left">
-          <p className="text-xs text-muted-foreground font-medium">{gallery.date}</p>
-          <h3 className="font-sans font-bold text-base mt-0.5">{gallery.title}</h3>
+          <p className="text-xs text-muted-foreground font-medium">
+            {gallery.date}
+          </p>
+          <h3 className="font-sans font-bold text-base mt-0.5">
+            {gallery.title}
+          </h3>
           <p className="text-xs text-muted-foreground mt-1">{gallery.stats}</p>
         </div>
       </div>
@@ -300,6 +331,7 @@ function GalleryScreen({ gallery }: { gallery: typeof galleries[number] }) {
       <div className="flex-1 px-3 pb-3 grid grid-cols-3 gap-1.5 auto-rows-min">
         {gallery.photos.map((id, i) => (
           <div key={i} className="rounded-lg aspect-square overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`https://images.unsplash.com/${id}?w=100&h=100&fit=crop&q=60`}
               alt={`${gallery.label} photo`}
@@ -316,9 +348,11 @@ function Hero() {
   const { user } = useAuth();
   const [activeGallery, setActiveGallery] = useState(0);
   // "visible" = at rest, "out" = fading out (drifting up), "in" = fading in (rising from below)
-  const [floatPhase, setFloatPhase] = useState<"visible" | "out" | "in">("visible");
+  const [floatPhase, setFloatPhase] = useState<"visible" | "out" | "in">(
+    "visible",
+  );
   const [floatGallery, setFloatGallery] = useState(0);
-  const gallery = galleries[activeGallery];
+  // const gallery = galleries[activeGallery];
   const floatData = galleries[floatGallery];
 
   const handleSwitch = (index: number) => {
@@ -344,20 +378,27 @@ function Hero() {
       {/* Dot pattern background — fades out toward center */}
       <div
         className="absolute inset-0 pattern-dots-lime"
-        style={{ maskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%)", WebkitMaskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%)" }}
+        style={{
+          maskImage:
+            "radial-gradient(ellipse at center, transparent 30%, black 90%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse at center, transparent 30%, black 90%)",
+        }}
       />
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
         <div className="animate-slide-up">
-          <Badge variant="secondary" className="mb-6 mt-4 px-4 py-1.5 text-sm font-medium rounded-full border border-border">
+          <Badge
+            variant="secondary"
+            className="mb-6 mt-4 px-4 py-1.5 text-sm font-medium rounded-full border border-border"
+          >
             <Sparkles className="size-3.5 mr-1.5 text-amber" />
             Version 1.0.0 is live!
           </Badge>
         </div>
 
         <h1 className="animate-slide-up stagger-1 font-sans text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.05]">
-          Every guest.{" "}
-          <br className="hidden sm:block" />
+          Every guest. <br className="hidden sm:block" />
           <span className="text-lime">Every moment.</span>{" "}
           <br className="hidden sm:block" />
           One gallery.
@@ -414,7 +455,9 @@ function Hero() {
                 <div className="flex-1 overflow-hidden relative">
                   <div
                     className="flex h-full transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
-                    style={{ transform: `translateX(-${activeGallery * 100}%)` }}
+                    style={{
+                      transform: `translateX(-${activeGallery * 100}%)`,
+                    }}
                   >
                     {galleries.map((g, i) => (
                       <GalleryScreen key={i} gallery={g} />
@@ -430,17 +473,29 @@ function Hero() {
               style={{
                 top: floatData.leftCardTop,
                 opacity: floatPhase === "visible" ? 1 : 0,
-                transform: floatPhase === "out" ? "translateY(-14px)" : floatPhase === "in" ? "translateY(14px)" : "translateY(0)",
-                transition: floatPhase === "in" ? "none" : "opacity 250ms ease-out, transform 250ms ease-out",
+                transform:
+                  floatPhase === "out"
+                    ? "translateY(-14px)"
+                    : floatPhase === "in"
+                      ? "translateY(14px)"
+                      : "translateY(0)",
+                transition:
+                  floatPhase === "in"
+                    ? "none"
+                    : "opacity 250ms ease-out, transform 250ms ease-out",
               }}
             >
               <div className="rounded-2xl bg-card border border-border px-4 py-3 shadow-xl flex items-center gap-3">
-                <div className={`size-10 rounded-full ${floatData.floatBg} flex items-center justify-center`}>
+                <div
+                  className={`size-10 rounded-full ${floatData.floatBg} flex items-center justify-center`}
+                >
                   {floatData.floatIcon}
                 </div>
                 <div>
                   <p className="text-sm font-semibold">{floatData.floatText}</p>
-                  <p className="text-xs text-muted-foreground">{floatData.floatSub}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {floatData.floatSub}
+                  </p>
                 </div>
               </div>
             </div>
@@ -451,8 +506,16 @@ function Hero() {
               style={{
                 bottom: floatData.rightCardBottom,
                 opacity: floatPhase === "visible" ? 1 : 0,
-                transform: floatPhase === "out" ? "translateY(-14px)" : floatPhase === "in" ? "translateY(14px)" : "translateY(0)",
-                transition: floatPhase === "in" ? "none" : "opacity 250ms ease-out, transform 250ms ease-out",
+                transform:
+                  floatPhase === "out"
+                    ? "translateY(-14px)"
+                    : floatPhase === "in"
+                      ? "translateY(14px)"
+                      : "translateY(0)",
+                transition:
+                  floatPhase === "in"
+                    ? "none"
+                    : "opacity 250ms ease-out, transform 250ms ease-out",
               }}
             >
               <div className="rounded-2xl bg-card border border-border px-4 py-3 shadow-xl flex items-center gap-3">
@@ -460,7 +523,9 @@ function Hero() {
                   <Users className="size-5 text-lime" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">{floatData.guestCount}</p>
+                  <p className="text-sm font-semibold">
+                    {floatData.guestCount}
+                  </p>
                   <p className="text-xs text-muted-foreground">contributing</p>
                 </div>
               </div>
@@ -496,7 +561,8 @@ function HowItWorks() {
     {
       icon: <PartyPopper className="size-9" />,
       title: "Create a gallery",
-      description: "Give your event a name and get a unique gallery link and QR code in seconds.",
+      description:
+        "Give your event a name and get a unique gallery link and QR code in seconds.",
       bgClass: "bg-lime/15",
       textClass: "text-lime",
       borderClass: "border-lime/30",
@@ -506,7 +572,8 @@ function HowItWorks() {
     {
       icon: <QrCode className="size-9" />,
       title: "Share the QR code",
-      description: "Print it, display it, or send the link. Place it where guests can easily scan.",
+      description:
+        "Print it, display it, or send the link. Place it where guests can easily scan.",
       bgClass: "bg-sky/15",
       textClass: "text-sky",
       borderClass: "border-sky/30",
@@ -516,7 +583,8 @@ function HowItWorks() {
     {
       icon: <Upload className="size-9" />,
       title: "Guests upload photos",
-      description: "No app, no account. Guests open the link and upload straight from their phone.",
+      description:
+        "No app, no account. Guests open the link and upload straight from their phone.",
       bgClass: "bg-coral/15",
       textClass: "text-coral",
       borderClass: "border-coral/30",
@@ -526,7 +594,8 @@ function HowItWorks() {
     {
       icon: <Images className="size-9" />,
       title: "Enjoy every moment",
-      description: "All photos and videos from every guest — together in one beautiful gallery.",
+      description:
+        "All photos and videos from every guest — together in one beautiful gallery.",
       bgClass: "bg-amber/15",
       textClass: "text-amber",
       borderClass: "border-amber/30",
@@ -536,13 +605,18 @@ function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="py-28 sm:py-36 relative overflow-hidden">
+    <section
+      id="how-it-works"
+      className="py-28 sm:py-36 relative overflow-hidden"
+    >
       {/* Dot pattern background — fades out toward center and bottom */}
       <div
         className="absolute inset-0 pattern-dots-lime"
         style={{
-          maskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, black 60%, transparent 100%)",
-          WebkitMaskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, black 60%, transparent 100%)",
+          maskImage:
+            "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, black 60%, transparent 100%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, black 60%, transparent 100%)",
           maskComposite: "intersect",
           WebkitMaskComposite: "destination-in",
         }}
@@ -550,7 +624,10 @@ function HowItWorks() {
 
       <div className="relative mx-auto max-w-5xl px-6">
         <AnimateIn className="text-center mb-20 sm:mb-28">
-          <Badge variant="secondary" className="mb-4 rounded-full px-4 py-1.5 text-sm border border-border">
+          <Badge
+            variant="secondary"
+            className="mb-4 rounded-full px-4 py-1.5 text-sm border border-border"
+          >
             Quick and simple
           </Badge>
           <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
@@ -572,23 +649,33 @@ function HowItWorks() {
               return (
                 <AnimateIn
                   key={step.number}
-                  animation={isRight ? "animate-slide-in-right" : "animate-slide-in-left"}
+                  animation={
+                    isRight ? "animate-slide-in-right" : "animate-slide-in-left"
+                  }
                   delay={`stagger-${i + 1}`}
                 >
-                  <div className={`flex flex-col md:flex-row items-center gap-8 ${isRight ? "md:flex-row-reverse" : ""}`}>
+                  <div
+                    className={`flex flex-col md:flex-row items-center gap-8 ${isRight ? "md:flex-row-reverse" : ""}`}
+                  >
                     {/* Content card */}
                     <div className="flex-1 w-full">
                       <div className="relative rounded-3xl bg-card border border-border p-8 sm:p-10">
                         {/* Large background number */}
-                        <span className={`absolute top-6 right-8 font-sans text-7xl sm:text-8xl font-black ${step.textClass} opacity-[0.07] select-none`}>
+                        <span
+                          className={`absolute top-6 right-8 font-sans text-7xl sm:text-8xl font-black ${step.textClass} opacity-[0.07] select-none`}
+                        >
                           {step.number}
                         </span>
 
                         <div className="relative">
-                          <div className={`size-16 sm:size-20 rounded-2xl ${step.bgClass} flex items-center justify-center mb-6`}>
+                          <div
+                            className={`size-16 sm:size-20 rounded-2xl ${step.bgClass} flex items-center justify-center mb-6`}
+                          >
                             <div className={step.textClass}>{step.icon}</div>
                           </div>
-                          <h3 className="font-sans text-2xl sm:text-3xl font-bold mb-3">{step.title}</h3>
+                          <h3 className="font-sans text-2xl sm:text-3xl font-bold mb-3">
+                            {step.title}
+                          </h3>
                           <p className="text-muted-foreground text-base sm:text-lg leading-relaxed max-w-md">
                             {step.description}
                           </p>
@@ -598,7 +685,9 @@ function HowItWorks() {
 
                     {/* Timeline node */}
                     <div className="hidden md:flex items-center justify-center shrink-0">
-                      <div className={`size-4 rounded-full ${step.dotClass} shadow-lg ring-4 ring-background`} />
+                      <div
+                        className={`size-4 rounded-full ${step.dotClass} shadow-lg ring-4 ring-background`}
+                      />
                     </div>
 
                     {/* Spacer */}
@@ -623,20 +712,25 @@ function Features() {
 
       <div className="relative mx-auto max-w-6xl px-6">
         <AnimateIn className="text-center mb-16 sm:mb-20">
-          <Badge variant="secondary" className="mb-4 rounded-full px-4 py-1.5 text-sm border border-border">
+          <Badge
+            variant="secondary"
+            className="mb-4 rounded-full px-4 py-1.5 text-sm border border-border"
+          >
             Built for real events
           </Badge>
           <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
-            Everything you need.{" "}
-            <br className="hidden sm:block" />
-            <span className="text-lime">Nothing you don't.</span>
+            Everything you need. <br className="hidden sm:block" />
+            <span className="text-lime">Nothing you don&apos;t.</span>
           </h2>
         </AnimateIn>
 
         {/* Feature bento grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Large feature card */}
-          <AnimateIn animation="animate-slide-in-left" className="lg:col-span-2">
+          <AnimateIn
+            animation="animate-slide-in-left"
+            className="lg:col-span-2"
+          >
             <div className="rounded-3xl bg-card border border-border p-8 sm:p-10 h-full flex flex-col justify-between ">
               <div>
                 <div className="size-14 rounded-2xl bg-lime/15 flex items-center justify-center mb-6">
@@ -646,13 +740,18 @@ function Features() {
                   Zero friction for guests
                 </h3>
                 <p className="text-muted-foreground text-base leading-relaxed max-w-lg">
-                  No app to download. No account to create. Guests scan the QR code with
-                  their phone camera, tap the link, and start uploading. That's it.
-                  Works on any phone, any browser.
+                  No app to download. No account to create. Guests scan the QR
+                  code with their phone camera, tap the link, and start
+                  uploading. That&apos;s it. Works on any phone, any browser.
                 </p>
               </div>
               <div className="mt-8 flex gap-3 flex-wrap">
-                {["No app install", "No sign-up", "Works on all phones", "Instant access"].map((tag) => (
+                {[
+                  "No app install",
+                  "No sign-up",
+                  "Works on all phones",
+                  "Instant access",
+                ].map((tag) => (
                   <span
                     key={tag}
                     className="px-3.5 py-1.5 rounded-full bg-lime/10 text-lime text-sm font-medium border border-lime/20"
@@ -673,8 +772,9 @@ function Features() {
                 QR code ready
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Get a beautiful, print-ready QR code the moment you create your gallery.
-                Display it at the entrance, on tables, or in your event program.
+                Get a beautiful, print-ready QR code the moment you create your
+                gallery. Display it at the entrance, on tables, or in your event
+                program.
               </p>
             </div>
           </AnimateIn>
@@ -703,8 +803,8 @@ function Features() {
                 Beautiful gallery view
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Photos aren't dumped in a folder. They're displayed in a gorgeous,
-                responsive gallery that makes browsing a joy.
+                Photos aren&apos;t dumped in a folder. They&apos;re displayed in
+                a gorgeous, responsive gallery that makes browsing a joy.
               </p>
             </div>
           </AnimateIn>
@@ -718,8 +818,8 @@ function Features() {
                 Private & secure
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Only people with the link can see your gallery. Your memories stay
-                between you and your guests. No data mining, no ads.
+                Only people with the link can see your gallery. Your memories
+                stay between you and your guests. No data mining, no ads.
               </p>
             </div>
           </AnimateIn>
@@ -737,8 +837,10 @@ function Comparison() {
       <div
         className="absolute inset-0 pattern-dots-lime"
         style={{
-          maskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 65%, transparent 100%)",
-          WebkitMaskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 65%, transparent 100%)",
+          maskImage:
+            "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 65%, transparent 100%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 65%, transparent 100%)",
           maskComposite: "intersect",
           WebkitMaskComposite: "destination-in",
         }}
@@ -754,7 +856,8 @@ function Comparison() {
             ?
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto">
-            Shared folders weren't designed for event photos. Almost Moments was.
+            Shared folders weren&apos;t designed for event photos. Almost
+            Moments was.
           </p>
         </AnimateIn>
 
@@ -762,8 +865,12 @@ function Comparison() {
           {/* Shared Drive card */}
           <AnimateIn animation="animate-slide-in-left">
             <div className="rounded-3xl bg-card border border-border p-8 sm:p-10 h-full opacity-60">
-              <h3 className="font-sans text-xl font-bold mb-2 text-muted-foreground">Google Drive</h3>
-              <p className="text-sm text-muted-foreground/60 mb-8">The old way</p>
+              <h3 className="font-sans text-xl font-bold mb-2 text-muted-foreground">
+                Google Drive
+              </h3>
+              <p className="text-sm text-muted-foreground/60 mb-8">
+                The old way
+              </p>
               <div className="space-y-5">
                 {[
                   { feature: "Free to use", has: true },
@@ -780,7 +887,9 @@ function Comparison() {
                     ) : (
                       <X className="size-5 text-muted-foreground/30 shrink-0" />
                     )}
-                    <span className={`text-sm ${row.has ? "text-foreground" : "text-muted-foreground/50 line-through"}`}>
+                    <span
+                      className={`text-sm ${row.has ? "text-foreground" : "text-muted-foreground/50 line-through"}`}
+                    >
                       {row.feature}
                     </span>
                   </div>
@@ -792,8 +901,12 @@ function Comparison() {
           {/* Almost Moments card */}
           <AnimateIn animation="animate-slide-in-right">
             <div className="rounded-3xl bg-card border-2 border-lime/30 p-8 sm:p-10 h-full shadow-xl">
-              <h3 className="font-sans text-xl font-bold mb-2 text-lime">Almost Moments</h3>
-              <p className="text-sm text-muted-foreground mb-8">Built for events</p>
+              <h3 className="font-sans text-xl font-bold mb-2 text-lime">
+                Almost Moments
+              </h3>
+              <p className="text-sm text-muted-foreground mb-8">
+                Built for events
+              </p>
               <div className="space-y-5">
                 {[
                   "Free to use",
@@ -823,31 +936,38 @@ function FAQ() {
   const faqs = [
     {
       question: "Is Almost Moments really free?",
-      answer: "Yes, 100% free. Create unlimited galleries, invite unlimited guests, upload unlimited photos. No hidden fees, no premium plans, no catches.",
+      answer:
+        "Yes, 100% free. Create unlimited galleries, invite unlimited guests, upload unlimited photos. No hidden fees, no premium plans, no catches.",
     },
     {
       question: "Do guests need to download an app?",
-      answer: "Nope! Guests just scan the QR code with their phone camera (or tap a link). It opens right in their browser. Works on iPhone, Android, and any device with a camera.",
+      answer:
+        "Nope! Guests just scan the QR code with their phone camera (or tap a link). It opens right in their browser. Works on iPhone, Android, and any device with a camera.",
     },
     {
       question: "Do guests need to create an account?",
-      answer: "No account needed. Guests can start uploading immediately — zero friction. The organizer can optionally create an account to manage their galleries.",
+      answer:
+        "No account needed. Guests can start uploading immediately — zero friction. The organizer can optionally create an account to manage their galleries.",
     },
     {
       question: "What types of files can guests upload?",
-      answer: "Photos (JPG, PNG, HEIC, WebP) and videos (MP4, MOV) from their phone. We handle the compression and optimization automatically.",
+      answer:
+        "Photos (JPG, PNG, HEIC, WebP) and videos (MP4, MOV) from their phone. We handle the compression and optimization automatically.",
     },
     {
       question: "How long are galleries kept?",
-      answer: "Your gallery stays online for 30 days after your event. You can download all the photos at any time. Need more time? Just extend it for free.",
+      answer:
+        "Your gallery stays online for 30 days after your event. You can download all the photos at any time. Need more time? Just extend it for free.",
     },
     {
       question: "Is my gallery private?",
-      answer: "Yes. Only people with the unique link or QR code can access your gallery. It's not indexed by search engines and can't be found by browsing.",
+      answer:
+        "Yes. Only people with the unique link or QR code can access your gallery. It's not indexed by search engines and can't be found by browsing.",
     },
     {
       question: "Can I download all the photos?",
-      answer: "Absolutely. You can download the entire gallery as a ZIP file with one click, or download individual photos. Full resolution, no watermarks.",
+      answer:
+        "Absolutely. You can download the entire gallery as a ZIP file with one click, or download individual photos. Full resolution, no watermarks.",
     },
   ];
 
@@ -857,7 +977,10 @@ function FAQ() {
 
       <div className="relative mx-auto max-w-3xl px-6">
         <AnimateIn className="text-center mb-16">
-          <Badge variant="secondary" className="mb-4 rounded-full px-4 py-1.5 text-sm border border-border">
+          <Badge
+            variant="secondary"
+            className="mb-4 rounded-full px-4 py-1.5 text-sm border border-border"
+          >
             Still not sure?
           </Badge>
           <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
@@ -868,7 +991,11 @@ function FAQ() {
         <AnimateIn animation="animate-slide-up">
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, i) => (
-              <AccordionItem key={i} value={`faq-${i}`} className="border-border">
+              <AccordionItem
+                key={i}
+                value={`faq-${i}`}
+                className="border-border"
+              >
                 <AccordionTrigger className="text-left text-base font-semibold font-sans hover:no-underline py-5">
                   {faq.question}
                 </AccordionTrigger>
@@ -894,8 +1021,10 @@ function CTA() {
       <div
         className="absolute inset-0 pattern-dots-lime"
         style={{
-          maskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 100%)",
-          WebkitMaskImage: "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 100%)",
+          maskImage:
+            "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 100%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 100%)",
           maskComposite: "intersect",
           WebkitMaskComposite: "destination-in",
         }}
@@ -907,13 +1036,12 @@ function CTA() {
             <span className="text-6xl inline-block">📸</span>
           </div>
           <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
-            Ready to capture{" "}
-            <br className="hidden sm:block" />
+            Ready to capture <br className="hidden sm:block" />
             <span className="text-lime">every moment?</span>
           </h2>
           <p className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto">
-            Create your gallery in under 30 seconds. Free forever.
-            No credit card, no catch.
+            Create your gallery in under 30 seconds. Free forever. No credit
+            card, no catch.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href={user ? "/dashboard" : "/sign-in"}>
@@ -951,34 +1079,89 @@ function Footer() {
               </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-              Bringing scattered memories together. One event, one gallery, all the moment.
+              Bringing scattered memories together. One event, one gallery, all
+              the moment.
             </p>
           </div>
 
           <div>
             <h4 className="font-sans font-bold text-sm mb-4">Product</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li><a href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</a></li>
-              <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
-              <li><a href="#faq" className="hover:text-foreground transition-colors">FAQ</a></li>
+              <li>
+                <a
+                  href="#how-it-works"
+                  className="hover:text-foreground transition-colors"
+                >
+                  How It Works
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#features"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Features
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#faq"
+                  className="hover:text-foreground transition-colors"
+                >
+                  FAQ
+                </a>
+              </li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-sans font-bold text-sm mb-4">Legal</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li><a href="https://appwrite.io/privacy" className="hover:text-foreground transition-colors">Privacy Policy</a></li>
-              <li><a href="https://appwrite.io/terms" className="hover:text-foreground transition-colors">Terms of Service</a></li>
-              <li><a href="https://appwrite.io/cookies" className="hover:text-foreground transition-colors">Cookie Policy</a></li>
+              <li>
+                <a
+                  href="https://appwrite.io/privacy"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://appwrite.io/terms"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://appwrite.io/cookies"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Cookie Policy
+                </a>
+              </li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-sans font-bold text-sm mb-4">Connect</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">Twitter / X</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Instagram</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">GitHub</a></li>
+              <li>
+                <a href="#" className="hover:text-foreground transition-colors">
+                  Twitter / X
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground transition-colors">
+                  Instagram
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-foreground transition-colors">
+                  GitHub
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -986,7 +1169,8 @@ function Footer() {
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} Almost Moments. Made with{" "}
-            <Heart className="inline size-3.5 text-coral fill-coral" /> for unforgettable events.
+            <Heart className="inline size-3.5 text-coral fill-coral" /> for
+            unforgettable events.
           </p>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Globe className="size-3.5" />
