@@ -1,40 +1,10 @@
 import { NextResponse } from "next/server";
 import { ID } from "node-appwrite";
-import sharp from "sharp";
-import { encode } from "blurhash";
 import { tablesDB, storage, Query } from "@/lib/appwrite-server";
 import { galleryIdParamsSchema, filesBodySchema } from "@/lib/api-schemas";
 import type { Galleries } from "@/lib/generated/appwrite";
 
 const MAX_FILES = 1000;
-const BLURHASH_WIDTH = 32;
-const BLURHASH_COMPONENTS_X = 4;
-const BLURHASH_COMPONENTS_Y = 3;
-
-type ImageMeta = { blurhash: string; width: number; height: number };
-
-async function extractImageMeta(buffer: ArrayBuffer): Promise<ImageMeta> {
-  const image = sharp(Buffer.from(buffer));
-  const metadata = await image.metadata();
-  const width = metadata.width ?? 800;
-  const height = metadata.height ?? 800;
-
-  const { data, info } = await image
-    .resize(BLURHASH_WIDTH, undefined, { fit: "inside" })
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  const blurhash = encode(
-    new Uint8ClampedArray(data),
-    info.width,
-    info.height,
-    BLURHASH_COMPONENTS_X,
-    BLURHASH_COMPONENTS_Y,
-  );
-
-  return { blurhash, width, height };
-}
 
 export async function POST(
   request: Request,
@@ -90,10 +60,17 @@ export async function POST(
     );
   }
 
-  const { files: fileIds } = bodyParsed.data;
+  const { assets } = bodyParsed.data;
 
-  // 5. Deduplicate file IDs
-  const uniqueFileIds = [...new Set(fileIds)];
+  // 5. Deduplicate by fileId (keep first occurrence)
+  const seen = new Set<string>();
+  const uniqueAssets = assets.filter((a) => {
+    if (seen.has(a.fileId)) return false;
+    seen.add(a.fileId);
+    return true;
+  });
+
+  const uniqueFileIds = uniqueAssets.map((a) => a.fileId);
 
   // 6. Ensure all files exist in storage
   const { files: existingFiles } = await storage.listFiles({
@@ -111,41 +88,16 @@ export async function POST(
     );
   }
 
-  // 7. Extract blurhash and dimensions for each file
-  const fileMeta = new Map<string, ImageMeta>();
-  await Promise.all(
-    uniqueFileIds.map(async (fileId) => {
-      try {
-        const buffer = await storage.getFileDownload({
-          bucketId: "assets",
-          fileId,
-        });
-        const meta = await extractImageMeta(buffer);
-        fileMeta.set(fileId, meta);
-      } catch {
-        // Use a minimal fallback for files where extraction fails (e.g. videos)
-        fileMeta.set(fileId, {
-          blurhash: "LEHV6nWB2yk8pyo0adR*.7kCMdnj",
-          width: 800,
-          height: 800,
-        });
-      }
-    }),
-  );
-
-  // 8. Create gallery-asset rows in chunks of 100
+  // 7. Create gallery-asset rows in chunks of 100
   const CHUNK_SIZE = 100;
-  const rows = uniqueFileIds.map((fileId) => {
-    const meta = fileMeta.get(fileId)!;
-    return {
-      $id: ID.unique(),
-      fileId,
-      blurhash: meta.blurhash,
-      width: meta.width,
-      height: meta.height,
-      galleryId: galleryId,
-    };
-  });
+  const rows = uniqueAssets.map((asset) => ({
+    $id: ID.unique(),
+    fileId: asset.fileId,
+    blurhash: asset.blurhash,
+    width: 800,
+    height: 800,
+    galleryId: galleryId,
+  }));
 
   for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
     const chunk = rows.slice(i, i + CHUNK_SIZE);

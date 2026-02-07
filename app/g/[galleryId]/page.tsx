@@ -36,7 +36,7 @@ import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import "yet-another-react-lightbox/styles.css";
-import { decode } from "blurhash";
+import { decode, encode } from "blurhash";
 import JSZip from "jszip";
 
 import { ThemeContext } from "@/app/layout";
@@ -85,6 +85,54 @@ function blurhashToDataUrl(hash: string, width = 32, height = 32): string {
   imageData.data.set(pixels);
   ctx.putImageData(imageData, 0, 0);
   return canvas.toDataURL();
+}
+
+// ─── Client-side blurhash generation ───────────────────────────
+const BLURHASH_SIZE = 32;
+const BLURHASH_COMPONENTS_X = 4;
+const BLURHASH_COMPONENTS_Y = 3;
+const FALLBACK_BLURHASH = "LEHV6nWB2yk8pyo0adR*.7kCMdnj";
+
+function generateBlurhash(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    if (isVideoFile(file.name)) {
+      resolve(FALLBACK_BLURHASH);
+      return;
+    }
+
+    const img = new window.Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = BLURHASH_SIZE;
+        canvas.height = BLURHASH_SIZE;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, BLURHASH_SIZE, BLURHASH_SIZE);
+        const imageData = ctx.getImageData(0, 0, BLURHASH_SIZE, BLURHASH_SIZE);
+        const hash = encode(
+          imageData.data,
+          BLURHASH_SIZE,
+          BLURHASH_SIZE,
+          BLURHASH_COMPONENTS_X,
+          BLURHASH_COMPONENTS_Y,
+        );
+        resolve(hash);
+      } catch {
+        resolve(FALLBACK_BLURHASH);
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(FALLBACK_BLURHASH);
+    };
+
+    img.src = url;
+  });
 }
 
 // ─── Single gallery image with blurhash → real image ───────────
@@ -305,7 +353,9 @@ export default function GalleryPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileStates, setFileStates] = useState<FileUploadState[]>([]);
-  const uploadedFileIds = useRef<Map<number, string>>(new Map());
+  const uploadedAssets = useRef<
+    Map<number, { fileId: string; blurhash: string }>
+  >(new Map());
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
@@ -321,7 +371,7 @@ export default function GalleryPage() {
     if (files.length === 0) return;
     setSelectedFiles(files);
     setFileStates(files.map(() => ({ status: "pending", progress: 0 })));
-    uploadedFileIds.current = new Map();
+    uploadedAssets.current = new Map();
     setUploading(false);
     setFinalizing(false);
     setFinalized(false);
@@ -333,7 +383,7 @@ export default function GalleryPage() {
     setUploadOpen(false);
     setSelectedFiles([]);
     setFileStates([]);
-    uploadedFileIds.current = new Map();
+    uploadedAssets.current = new Map();
     setFinalizing(false);
     setFinalized(false);
   }
@@ -364,7 +414,11 @@ export default function GalleryPage() {
             updateFileState(idx, { progress: pct });
           },
         });
-        uploadedFileIds.current.set(idx, result.$id);
+        const blurhash = await generateBlurhash(file);
+        uploadedAssets.current.set(idx, {
+          fileId: result.$id,
+          blurhash,
+        });
         updateFileState(idx, { status: "done", progress: 100 });
         return true;
       } catch {
@@ -398,8 +452,8 @@ export default function GalleryPage() {
   }
 
   async function finalizeUpload() {
-    const fileIds = Array.from(uploadedFileIds.current.values());
-    if (fileIds.length === 0) {
+    const assets = Array.from(uploadedAssets.current.values());
+    if (assets.length === 0) {
       setFinalized(true);
       return;
     }
@@ -409,7 +463,7 @@ export default function GalleryPage() {
       const res = await fetch(`/api/v1/galleries/${galleryId}/files`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ files: fileIds }),
+        body: JSON.stringify({ assets }),
       });
       if (!res.ok) throw new Error("Failed to attach files to gallery.");
       setFinalized(true);
@@ -427,7 +481,7 @@ export default function GalleryPage() {
   async function startUpload() {
     if (selectedFiles.length === 0) return;
     setUploading(true);
-    uploadedFileIds.current = new Map();
+    uploadedAssets.current = new Map();
     setFileStates(
       selectedFiles.map(() => ({ status: "pending", progress: 0 })),
     );
@@ -713,7 +767,7 @@ export default function GalleryPage() {
     return <ExpiredState gallery={state.gallery} />;
 
   const { gallery } = state;
-  const photoCount = gallery.totalAssets;
+  const photoCount = gallery.totalAssets ?? 0;
 
   return (
     <div className="min-h-dvh bg-background">

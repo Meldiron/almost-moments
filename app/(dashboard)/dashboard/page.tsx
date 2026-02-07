@@ -77,7 +77,6 @@ const FILTERS: {
   { id: "expired", label: "Expired", icon: AlertTriangle },
   { id: "expiring-soon", label: "Expiring soon", icon: Clock },
   { id: "created-this-year", label: "Created this year", icon: CalendarDays },
-  { id: "no-photos", label: "Empty galleries", icon: ImageIcon },
   { id: "has-description", label: "Has description", icon: FileText },
 ];
 

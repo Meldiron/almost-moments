@@ -71,40 +71,49 @@ export type QueryableKeys<T> = {
 }[keyof T];
 
 export type QueryBuilder<T> = {
-  equal: <K extends QueryableKeys<T>>(
+  equal: <K extends QueryableKeys<T> & keyof T>(
     field: K,
     value: ExtractQueryValue<T[K]>,
   ) => string;
-  notEqual: <K extends QueryableKeys<T>>(
+  notEqual: <K extends QueryableKeys<T> & keyof T>(
     field: K,
     value: ExtractQueryValue<T[K]>,
   ) => string;
-  lessThan: <K extends QueryableKeys<T>>(
+  lessThan: <K extends QueryableKeys<T> & keyof T>(
     field: K,
     value: ExtractQueryValue<T[K]>,
   ) => string;
-  lessThanEqual: <K extends QueryableKeys<T>>(
+  lessThanEqual: <K extends QueryableKeys<T> & keyof T>(
     field: K,
     value: ExtractQueryValue<T[K]>,
   ) => string;
-  greaterThan: <K extends QueryableKeys<T>>(
+  greaterThan: <K extends QueryableKeys<T> & keyof T>(
     field: K,
     value: ExtractQueryValue<T[K]>,
   ) => string;
-  greaterThanEqual: <K extends QueryableKeys<T>>(
+  greaterThanEqual: <K extends QueryableKeys<T> & keyof T>(
     field: K,
     value: ExtractQueryValue<T[K]>,
   ) => string;
-  contains: <K extends QueryableKeys<T>>(
+  contains: <K extends QueryableKeys<T> & keyof T>(
     field: K,
     value: ExtractQueryValue<T[K]>,
   ) => string;
-  search: <K extends QueryableKeys<T>>(field: K, value: string) => string;
-  isNull: <K extends QueryableKeys<T>>(field: K) => string;
-  isNotNull: <K extends QueryableKeys<T>>(field: K) => string;
-  startsWith: <K extends QueryableKeys<T>>(field: K, value: string) => string;
-  endsWith: <K extends QueryableKeys<T>>(field: K, value: string) => string;
-  between: <K extends QueryableKeys<T>>(
+  search: <K extends QueryableKeys<T> & keyof T>(
+    field: K,
+    value: string,
+  ) => string;
+  isNull: <K extends QueryableKeys<T> & keyof T>(field: K) => string;
+  isNotNull: <K extends QueryableKeys<T> & keyof T>(field: K) => string;
+  startsWith: <K extends QueryableKeys<T> & keyof T>(
+    field: K,
+    value: string,
+  ) => string;
+  endsWith: <K extends QueryableKeys<T> & keyof T>(
+    field: K,
+    value: string,
+  ) => string;
+  between: <K extends QueryableKeys<T> & keyof T>(
     field: K,
     start: ExtractQueryValue<T[K]>,
     end: ExtractQueryValue<T[K]>,
@@ -192,49 +201,55 @@ export type DatabaseTableMap = {
       ) => Promise<void>;
       list: (options?: {
         queries?: (q: {
-          equal: <K extends QueryableKeys<Galleries>>(
+          equal: <K extends QueryableKeys<Galleries> & keyof Galleries>(
             field: K,
             value: ExtractQueryValue<Galleries[K]>,
           ) => string;
-          notEqual: <K extends QueryableKeys<Galleries>>(
+          notEqual: <K extends QueryableKeys<Galleries> & keyof Galleries>(
             field: K,
             value: ExtractQueryValue<Galleries[K]>,
           ) => string;
-          lessThan: <K extends QueryableKeys<Galleries>>(
+          lessThan: <K extends QueryableKeys<Galleries> & keyof Galleries>(
             field: K,
             value: ExtractQueryValue<Galleries[K]>,
           ) => string;
-          lessThanEqual: <K extends QueryableKeys<Galleries>>(
+          lessThanEqual: <K extends QueryableKeys<Galleries> & keyof Galleries>(
             field: K,
             value: ExtractQueryValue<Galleries[K]>,
           ) => string;
-          greaterThan: <K extends QueryableKeys<Galleries>>(
+          greaterThan: <K extends QueryableKeys<Galleries> & keyof Galleries>(
             field: K,
             value: ExtractQueryValue<Galleries[K]>,
           ) => string;
-          greaterThanEqual: <K extends QueryableKeys<Galleries>>(
+          greaterThanEqual: <
+            K extends QueryableKeys<Galleries> & keyof Galleries,
+          >(
             field: K,
             value: ExtractQueryValue<Galleries[K]>,
           ) => string;
-          contains: <K extends QueryableKeys<Galleries>>(
+          contains: <K extends QueryableKeys<Galleries> & keyof Galleries>(
             field: K,
             value: ExtractQueryValue<Galleries[K]>,
           ) => string;
-          search: <K extends QueryableKeys<Galleries>>(
+          search: <K extends QueryableKeys<Galleries> & keyof Galleries>(
             field: K,
             value: string,
           ) => string;
-          isNull: <K extends QueryableKeys<Galleries>>(field: K) => string;
-          isNotNull: <K extends QueryableKeys<Galleries>>(field: K) => string;
-          startsWith: <K extends QueryableKeys<Galleries>>(
+          isNull: <K extends QueryableKeys<Galleries> & keyof Galleries>(
+            field: K,
+          ) => string;
+          isNotNull: <K extends QueryableKeys<Galleries> & keyof Galleries>(
+            field: K,
+          ) => string;
+          startsWith: <K extends QueryableKeys<Galleries> & keyof Galleries>(
             field: K,
             value: string,
           ) => string;
-          endsWith: <K extends QueryableKeys<Galleries>>(
+          endsWith: <K extends QueryableKeys<Galleries> & keyof Galleries>(
             field: K,
             value: string,
           ) => string;
-          between: <K extends QueryableKeys<Galleries>>(
+          between: <K extends QueryableKeys<Galleries> & keyof Galleries>(
             field: K,
             start: ExtractQueryValue<Galleries[K]>,
             end: ExtractQueryValue<Galleries[K]>,
@@ -317,51 +332,77 @@ export type DatabaseTableMap = {
       ) => Promise<void>;
       list: (options?: {
         queries?: (q: {
-          equal: <K extends QueryableKeys<GalleryAssets>>(
+          equal: <K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets>(
             field: K,
             value: ExtractQueryValue<GalleryAssets[K]>,
           ) => string;
-          notEqual: <K extends QueryableKeys<GalleryAssets>>(
+          notEqual: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
             field: K,
             value: ExtractQueryValue<GalleryAssets[K]>,
           ) => string;
-          lessThan: <K extends QueryableKeys<GalleryAssets>>(
+          lessThan: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
             field: K,
             value: ExtractQueryValue<GalleryAssets[K]>,
           ) => string;
-          lessThanEqual: <K extends QueryableKeys<GalleryAssets>>(
+          lessThanEqual: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
             field: K,
             value: ExtractQueryValue<GalleryAssets[K]>,
           ) => string;
-          greaterThan: <K extends QueryableKeys<GalleryAssets>>(
+          greaterThan: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
             field: K,
             value: ExtractQueryValue<GalleryAssets[K]>,
           ) => string;
-          greaterThanEqual: <K extends QueryableKeys<GalleryAssets>>(
+          greaterThanEqual: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
             field: K,
             value: ExtractQueryValue<GalleryAssets[K]>,
           ) => string;
-          contains: <K extends QueryableKeys<GalleryAssets>>(
+          contains: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
             field: K,
             value: ExtractQueryValue<GalleryAssets[K]>,
           ) => string;
-          search: <K extends QueryableKeys<GalleryAssets>>(
+          search: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
             field: K,
             value: string,
           ) => string;
-          isNull: <K extends QueryableKeys<GalleryAssets>>(field: K) => string;
-          isNotNull: <K extends QueryableKeys<GalleryAssets>>(
+          isNull: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
             field: K,
           ) => string;
-          startsWith: <K extends QueryableKeys<GalleryAssets>>(
+          isNotNull: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
+            field: K,
+          ) => string;
+          startsWith: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
             field: K,
             value: string,
           ) => string;
-          endsWith: <K extends QueryableKeys<GalleryAssets>>(
+          endsWith: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
             field: K,
             value: string,
           ) => string;
-          between: <K extends QueryableKeys<GalleryAssets>>(
+          between: <
+            K extends QueryableKeys<GalleryAssets> & keyof GalleryAssets,
+          >(
             field: K,
             start: ExtractQueryValue<GalleryAssets[K]>,
             end: ExtractQueryValue<GalleryAssets[K]>,

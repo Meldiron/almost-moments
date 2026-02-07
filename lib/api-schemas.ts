@@ -10,6 +10,20 @@ export const galleryIdParamsSchema = z.object({
   galleryId: appwriteIdSchema,
 });
 
+export const blurhashSchema = z
+  .string()
+  .min(6)
+  .max(100)
+  .regex(/^[0-9A-Za-z#$%*+,\-./:;=?@[\]^_{|}~]+$/);
+
 export const filesBodySchema = z.object({
-  files: z.array(appwriteIdSchema).nonempty().max(1000),
+  assets: z
+    .array(
+      z.object({
+        fileId: appwriteIdSchema,
+        blurhash: blurhashSchema,
+      }),
+    )
+    .nonempty()
+    .max(1000),
 });
