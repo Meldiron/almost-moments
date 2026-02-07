@@ -29,6 +29,7 @@ import {
   FileVideo,
   RotateCcw,
   Loader2,
+  Archive,
 } from "lucide-react";
 import QRCode from "qrcode";
 import Lightbox from "yet-another-react-lightbox";
@@ -36,6 +37,7 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import "yet-another-react-lightbox/styles.css";
 import { decode } from "blurhash";
+import JSZip from "jszip";
 
 import { ThemeContext } from "@/app/layout";
 import { SEO } from "@/components/seo";
@@ -482,6 +484,130 @@ export default function GalleryPage() {
     setTimeout(() => setCopied(false), 2000);
   }
 
+  // Download as ZIP
+  const [zipGenerating, setZipGenerating] = useState(false);
+  const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
+
+  async function downloadAsZip() {
+    if (zipGenerating) return;
+    setZipGenerating(true);
+
+    try {
+      // 1. Fetch all asset rows by paginating in pages of 100
+      const allAssets: GalleryAssets[] = [];
+      let cursor: string | null = null;
+      const galleryAssetsTable = databases.use("main").use("galleryAssets");
+
+      for (;;) {
+        const result = await galleryAssetsTable.list({
+          queries: (q) => {
+            const queries = [
+              q.equal("galleryId", galleryId),
+              q.orderDesc("$createdAt"),
+              q.limit(ASSETS_PAGE_SIZE),
+            ];
+            if (cursor) {
+              queries.push(q.cursorAfter(cursor));
+            }
+            return queries;
+          },
+        });
+
+        allAssets.push(...result.rows);
+        if (result.rows.length < ASSETS_PAGE_SIZE) break;
+        cursor = result.rows[result.rows.length - 1].$id;
+      }
+
+      if (allAssets.length === 0) {
+        setZipGenerating(false);
+        setDownloadMenuOpen(false);
+        return;
+      }
+
+      // 2. Download all files and add to ZIP
+      const zip = new JSZip();
+      const seen = new Set<string>();
+
+      await Promise.all(
+        allAssets.map(async (asset) => {
+          try {
+            const url = storage.getFileDownload({
+              bucketId: "assets",
+              fileId: asset.fileId,
+            });
+            const res = await fetch(url);
+            if (!res.ok) {
+              console.error(
+                `[ZIP] Failed to fetch file ${asset.fileId}: ${res.status} ${res.statusText}`,
+              );
+              return;
+            }
+            const blob = await res.blob();
+            console.log(
+              `[ZIP] Downloaded ${asset.fileId}: ${blob.size} bytes, type=${blob.type}`,
+            );
+
+            // Determine filename from Content-Disposition or fallback
+            let filename = asset.fileId;
+            const disposition = res.headers.get("content-disposition");
+            if (disposition) {
+              const match = disposition.match(
+                /filename\*?=(?:UTF-8''|"?)([^";]+)/i,
+              );
+              if (match) filename = decodeURIComponent(match[1]);
+            }
+
+            // Deduplicate filenames
+            let uniqueName = filename;
+            let counter = 1;
+            while (seen.has(uniqueName)) {
+              const dot = filename.lastIndexOf(".");
+              if (dot > 0) {
+                uniqueName = `${filename.slice(0, dot)} (${counter})${filename.slice(dot)}`;
+              } else {
+                uniqueName = `${filename} (${counter})`;
+              }
+              counter++;
+            }
+            seen.add(uniqueName);
+
+            zip.file(uniqueName, blob);
+          } catch (err) {
+            console.error(`[ZIP] Error downloading file ${asset.fileId}:`, err);
+          }
+        }),
+      );
+
+      console.log(
+        `[ZIP] Added ${Object.keys(zip.files).length} files to archive`,
+      );
+
+      // 3. Generate and download the ZIP
+      const safeName = (
+        state.status === "ready" ? state.gallery.name : "gallery"
+      )
+        .replace(/[^a-zA-Z0-9\s\-_]/g, "")
+        .replace(/\s+/g, "-")
+        .toLowerCase()
+        .slice(0, 100);
+
+      const blob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeName}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("[ZIP] Failed to generate ZIP:", err);
+    } finally {
+      setZipGenerating(false);
+      setDownloadMenuOpen(false);
+    }
+  }
+
   // ─── Load gallery assets page ─────────────────────────────
   const loadAssets = useCallback(async () => {
     if (assetsLoading || !hasMore) return;
@@ -629,12 +755,41 @@ export default function GalleryPage() {
               <Upload className="size-4" />
               <span className="hidden sm:inline">Upload images</span>
             </button>
-            <button
-              className="size-9 rounded-full flex items-center justify-center bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-              aria-label="Download all as ZIP"
+            <DropdownMenu
+              open={downloadMenuOpen}
+              onOpenChange={(open) => {
+                if (!zipGenerating) setDownloadMenuOpen(open);
+              }}
             >
-              <Download className="size-4" />
-            </button>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="size-9 rounded-full flex items-center justify-center bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  aria-label="Download"
+                >
+                  <Download className="size-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem
+                  onClick={downloadAsZip}
+                  disabled={zipGenerating}
+                  className="cursor-pointer"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  {zipGenerating ? (
+                    <>
+                      <Loader2 className="size-4 mr-2 animate-spin" />
+                      Generating…
+                    </>
+                  ) : (
+                    <>
+                      <Archive className="size-4 mr-2" />
+                      Download as ZIP
+                    </>
+                  )}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -715,7 +870,7 @@ export default function GalleryPage() {
       </header>
 
       {/* ─── Gallery ─────────────────────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6 pb-16">
+      <section className="px-4 sm:px-6 pb-16">
         {photoCount === 0 && !assetsLoading && !hasMore ? (
           <div className="py-20 text-center animate-scale-in">
             <div className="mx-auto mb-5 size-20 rounded-2xl bg-muted flex items-center justify-center">
