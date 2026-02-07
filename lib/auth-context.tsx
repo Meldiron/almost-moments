@@ -44,17 +44,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setMfaRequired(false);
     } catch (err: unknown) {
       setUser(null);
-      if (
-        err &&
-        typeof err === "object" &&
-        "code" in err &&
-        "type" in err &&
-        (err as { code: number }).code === 401 &&
-        (err as { type: string }).type === "user_more_factors_required"
-      ) {
+      const code =
+        err && typeof err === "object" && "code" in err
+          ? (err as { code: number }).code
+          : 0;
+      const type =
+        err && typeof err === "object" && "type" in err
+          ? (err as { type: string }).type
+          : "";
+
+      if (code === 401 && type === "user_more_factors_required") {
         setMfaRequired(true);
       } else {
         setMfaRequired(false);
+      }
+
+      if (code === 401 && type === "user_blocked") {
+        try {
+          await account.deleteSession("current");
+        } catch {
+          // ignore
+        }
       }
     } finally {
       setLoading(false);

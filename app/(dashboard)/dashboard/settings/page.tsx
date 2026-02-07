@@ -605,13 +605,13 @@ function DeleteAccountSection() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleDelete() {
+  async function handleDelete(e: React.FormEvent) {
+    e.preventDefault();
     setError("");
     setLoading(true);
     try {
       await account.updateStatus();
       await refresh();
-      await account.deleteSession("current");
       router.replace("/");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to delete account");
@@ -664,7 +664,7 @@ function DeleteAccountSection() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
+          <form onSubmit={handleDelete} className="space-y-4 py-2">
             <div className="space-y-2">
               <Label htmlFor="delete-confirm">
                 Type <span className="font-mono font-bold">DELETE</span> to
@@ -683,14 +683,14 @@ function DeleteAccountSection() {
               <p className="text-sm text-destructive text-center">{error}</p>
             )}
             <Button
+              type="submit"
               variant="destructive"
               className="rounded-xl font-medium w-full"
               disabled={confirmText !== "DELETE" || loading}
-              onClick={handleDelete}
             >
               {loading ? "Deleting..." : "Permanently delete"}
             </Button>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
