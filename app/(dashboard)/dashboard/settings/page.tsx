@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useViewTransitionRouter } from "@/lib/view-transitions";
 import { AuthenticatorType } from "appwrite";
 import { account } from "@/lib/appwrite";
 import { Button } from "@/components/ui/button";
@@ -285,7 +285,7 @@ type TwoFAStep = "idle" | "qr" | "recovery" | "done";
 
 function TwoFASection() {
   const { user } = useAuth();
-  const router = useRouter();
+  const router = useViewTransitionRouter();
   const [step, setStep] = useState<TwoFAStep>("idle");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -765,7 +765,7 @@ function TwoFASection() {
 
 // ─── Delete Account Section ─────────────────────────────────────
 function DeleteAccountSection() {
-  const router = useRouter();
+  const router = useViewTransitionRouter();
   const { refresh } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");

@@ -9,6 +9,7 @@ import {
   useContext,
 } from "react";
 import { AuthProvider } from "@/lib/auth-context";
+import { ViewTransitions } from "@/lib/view-transitions";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -75,7 +76,9 @@ export default function RootLayout({
         className={`${sora.variable} ${dmSans.variable} antialiased ${isDark ? "dark" : ""}`}
       >
         <ThemeContext.Provider value={{ isDark, toggle }}>
-          <AuthProvider>{children}</AuthProvider>
+          <ViewTransitions>
+            <AuthProvider>{children}</AuthProvider>
+          </ViewTransitions>
         </ThemeContext.Provider>
       </body>
     </html>

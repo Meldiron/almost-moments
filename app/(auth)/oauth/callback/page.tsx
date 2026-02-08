@@ -1,14 +1,15 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useViewTransitionRouter } from "@/lib/view-transitions";
 import { account } from "@/lib/appwrite";
 import { useAuth } from "@/lib/auth-context";
 import { SEO } from "@/components/seo";
 import { Loader2 } from "lucide-react";
 
 function OAuthCallbackContent() {
-  const router = useRouter();
+  const router = useViewTransitionRouter();
   const { refresh } = useAuth();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");

@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useContext } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
+import {
+  useViewTransitionRouter,
+  TransitionLink,
+} from "@/lib/view-transitions";
 import { Sun, Moon, LogOut, Images, Settings, User } from "lucide-react";
 import {
   DropdownMenu,
@@ -22,7 +25,7 @@ export default function DashboardLayout({
 }) {
   const { user, loading, mfaRequired, refresh } = useAuth();
   const { isDark, toggle } = useContext(ThemeContext);
-  const router = useRouter();
+  const router = useViewTransitionRouter();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export default function DashboardLayout({
         <div className="mx-auto max-w-5xl px-4 sm:px-6 flex items-center justify-between h-16">
           {/* Left: Logo + Galleries link */}
           <div className="flex items-center gap-8">
-            <Link
+            <TransitionLink
               href="/"
               className="flex items-center gap-2 text-foreground hover:opacity-80 transition-opacity"
             >
@@ -61,9 +64,9 @@ export default function DashboardLayout({
               <span className="font-sans font-bold text-base hidden sm:inline">
                 Almost Moments
               </span>
-            </Link>
+            </TransitionLink>
 
-            <Link
+            <TransitionLink
               href="/dashboard"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 isGalleries
@@ -73,7 +76,7 @@ export default function DashboardLayout({
             >
               <Images className="size-4" />
               Galleries
-            </Link>
+            </TransitionLink>
           </div>
 
           {/* Right: Theme toggle + user menu */}
@@ -101,13 +104,13 @@ export default function DashboardLayout({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem asChild>
-                  <Link
+                  <TransitionLink
                     href="/dashboard/settings"
                     className="flex items-center gap-2 cursor-pointer"
                   >
                     <Settings className="size-4" />
                     Settings
-                  </Link>
+                  </TransitionLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"

@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
+import {
+  useViewTransitionRouter,
+  TransitionLink,
+} from "@/lib/view-transitions";
 import { Sun, Moon, X } from "lucide-react";
 import { ThemeContext } from "../layout";
 import { useContext } from "react";
@@ -16,7 +18,7 @@ export default function AuthLayout({
 }) {
   const { isDark, toggle } = useContext(ThemeContext);
   const { user, loading, mfaRequired } = useAuth();
-  const router = useRouter();
+  const router = useViewTransitionRouter();
 
   useEffect(() => {
     if (loading) return;
@@ -46,7 +48,7 @@ export default function AuthLayout({
 
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-6 py-5">
-        <Link
+        <TransitionLink
           href="/"
           className="flex items-center gap-2 text-foreground hover:opacity-80 transition-opacity"
         >
@@ -58,7 +60,7 @@ export default function AuthLayout({
             className="size-9 rounded-xl"
           />
           <span className="font-sans font-bold text-lg">Almost Moments</span>
-        </Link>
+        </TransitionLink>
 
         <div className="flex items-center gap-2">
           <button
@@ -68,13 +70,13 @@ export default function AuthLayout({
           >
             {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
-          <Link
+          <TransitionLink
             href="/"
             className="size-9 rounded-full flex items-center justify-center bg-secondary hover:bg-accent transition-colors"
             aria-label="Close"
           >
             <X className="size-4" />
-          </Link>
+          </TransitionLink>
         </div>
       </header>
 

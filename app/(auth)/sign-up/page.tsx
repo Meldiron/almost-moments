@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import {
+  useViewTransitionRouter,
+  TransitionLink,
+} from "@/lib/view-transitions";
 import { ID, OAuthProvider } from "appwrite";
 import { account } from "@/lib/appwrite";
 import { useAuth } from "@/lib/auth-context";
@@ -35,7 +37,7 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export default function SignUpPage() {
-  const router = useRouter();
+  const router = useViewTransitionRouter();
   const { refresh } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -186,12 +188,12 @@ export default function SignUpPage() {
         {/* Sign in link */}
         <p className="text-sm text-center mt-6 text-muted-foreground">
           Already have an account?{" "}
-          <Link
+          <TransitionLink
             href="/sign-in"
             className="text-lime font-semibold hover:underline"
           >
             Sign in
-          </Link>
+          </TransitionLink>
         </p>
       </div>
     </>

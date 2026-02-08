@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
+import { TransitionLink } from "@/lib/view-transitions";
 import {
   Upload,
   Download,
@@ -291,12 +291,12 @@ function NotFoundState() {
           This gallery doesn&apos;t exist or the link might be broken. Double
           check the URL or ask the event organizer for a new one.
         </p>
-        <Link
+        <TransitionLink
           href="/"
           className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
         >
           Go to Almost Moments
-        </Link>
+        </TransitionLink>
       </div>
     </div>
   );
@@ -324,12 +324,12 @@ function ExpiredState({ gallery }: { gallery: Galleries }) {
           . The organizer may have set a time limit for uploads. Contact them if
           you think this is a mistake.
         </p>
-        <Link
+        <TransitionLink
           href="/"
           className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
         >
           Go to Almost Moments
-        </Link>
+        </TransitionLink>
       </div>
     </div>
   );
@@ -794,7 +794,7 @@ export default function GalleryPage() {
       <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-md">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-3 min-w-0">
-            <Link href="/" className="shrink-0">
+            <TransitionLink href="/" className="shrink-0">
               <Image
                 src="/logo.svg"
                 alt="Almost Moments"
@@ -802,7 +802,7 @@ export default function GalleryPage() {
                 height={32}
                 className="size-8 rounded-lg"
               />
-            </Link>
+            </TransitionLink>
             <span className="text-sm font-semibold text-foreground truncate">
               {gallery.name}
             </span>

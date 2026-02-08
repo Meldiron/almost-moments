@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useContext } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
+import {
+  useViewTransitionRouter,
+  TransitionLink,
+} from "@/lib/view-transitions";
 import { AuthenticationFactor } from "appwrite";
 import { account } from "@/lib/appwrite";
 import { useAuth } from "@/lib/auth-context";
@@ -17,7 +19,7 @@ import { Sun, Moon, X } from "lucide-react";
 export default function MFALoginPage() {
   const { isDark, toggle } = useContext(ThemeContext);
   const { refresh } = useAuth();
-  const router = useRouter();
+  const router = useViewTransitionRouter();
   const [challengeId, setChallengeId] = useState("");
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
@@ -87,7 +89,7 @@ export default function MFALoginPage() {
 
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-6 py-5">
-        <Link
+        <TransitionLink
           href="/"
           className="flex items-center gap-2 text-foreground hover:opacity-80 transition-opacity"
         >
@@ -99,7 +101,7 @@ export default function MFALoginPage() {
             className="size-9 rounded-xl"
           />
           <span className="font-sans font-bold text-lg">Almost Moments</span>
-        </Link>
+        </TransitionLink>
 
         <div className="flex items-center gap-2">
           <button

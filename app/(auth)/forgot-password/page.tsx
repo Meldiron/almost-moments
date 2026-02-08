@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { TransitionLink } from "@/lib/view-transitions";
 import { ID } from "appwrite";
 import { account } from "@/lib/appwrite";
 import { Button } from "@/components/ui/button";
@@ -54,13 +54,13 @@ export default function ForgotPasswordPage() {
             Click the link in the email to sign in.
           </p>
           <p className="text-sm text-center mt-8">
-            <Link
+            <TransitionLink
               href="/sign-in"
               className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
             >
               <ArrowLeft className="size-3.5" />
               Back to sign in
-            </Link>
+            </TransitionLink>
           </p>
         </div>
       </>
@@ -110,13 +110,13 @@ export default function ForgotPasswordPage() {
 
         {/* Back to sign in */}
         <p className="text-sm text-center mt-6">
-          <Link
+          <TransitionLink
             href="/sign-in"
             className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
           >
             <ArrowLeft className="size-3.5" />
             Back to sign in
-          </Link>
+          </TransitionLink>
         </p>
       </div>
     </>

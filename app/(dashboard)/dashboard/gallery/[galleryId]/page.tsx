@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useViewTransitionRouter } from "@/lib/view-transitions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -179,7 +180,7 @@ type FileMeta = { name: string; sizeOriginal: number };
 
 export default function GalleryManagePage() {
   const params = useParams();
-  const router = useRouter();
+  const router = useViewTransitionRouter();
   const { user, refresh } = useAuth();
   const galleryId = (params.galleryId as string) ?? "";
 

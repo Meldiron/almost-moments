@@ -2,7 +2,7 @@
 
 import { useContext, useState, useEffect, useRef, type ReactNode } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { TransitionLink } from "@/lib/view-transitions";
 import { ThemeContext } from "./layout";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -147,14 +147,14 @@ function Navbar() {
           {loading ? (
             <div className="hidden md:block h-8 w-24 rounded-full bg-secondary animate-pulse" />
           ) : (
-            <Link href={user ? "/dashboard" : "/sign-in"}>
+            <TransitionLink href={user ? "/dashboard" : "/sign-in"}>
               <Button
                 size="sm"
                 className="hidden md:inline-flex rounded-full px-5 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold"
               >
                 {user ? "My Galleries" : "Sign in"}
               </Button>
-            </Link>
+            </TransitionLink>
           )}
 
           <button
@@ -197,11 +197,11 @@ function Navbar() {
           {loading ? (
             <div className="h-10 w-full rounded-full bg-secondary animate-pulse" />
           ) : (
-            <Link href={user ? "/dashboard" : "/sign-in"}>
+            <TransitionLink href={user ? "/dashboard" : "/sign-in"}>
               <Button className="rounded-full bg-lime text-lime-foreground hover:bg-lime/90 font-semibold w-full">
                 {user ? "My Galleries" : "Sign in"}
               </Button>
-            </Link>
+            </TransitionLink>
           )}
         </div>
       )}
@@ -223,7 +223,7 @@ const galleries = [
       "photo-1520854221256-17451cc331bf",
       "photo-1546032996-6dfacbacbf3f",
       "photo-1460978812857-470ed1c77af0",
-      "photo-1673897888993-a1db844c2ca1",
+      "photo-1606800052052-a08af7148866",
       "photo-1465495976277-4387d4b0b4c6",
       "photo-1591700331354-f7eea65d1ce8",
       "photo-1607861884586-c7cfaed16290",
@@ -425,7 +425,7 @@ function Hero() {
           {loading ? (
             <div className="h-13 w-40 rounded-full bg-secondary animate-pulse" />
           ) : (
-            <Link href={user ? "/dashboard" : "/sign-in"}>
+            <TransitionLink href={user ? "/dashboard" : "/sign-in"}>
               <Button
                 size="lg"
                 className="rounded-full px-8 h-13 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-semibold shadow-lg shadow-lime/20"
@@ -433,7 +433,7 @@ function Hero() {
                 {user ? "My Galleries" : "Get Started"}
                 <ArrowRight className="size-4 ml-1" />
               </Button>
-            </Link>
+            </TransitionLink>
           )}
           <Button
             variant="outline"
@@ -1058,7 +1058,7 @@ function CTA() {
             {loading ? (
               <div className="h-14 w-56 rounded-full bg-secondary animate-pulse" />
             ) : (
-              <Link href={user ? "/dashboard" : "/sign-in"}>
+              <TransitionLink href={user ? "/dashboard" : "/sign-in"}>
                 <Button
                   size="lg"
                   className="rounded-full px-10 h-14 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-bold shadow-lg shadow-lime/25"
@@ -1066,7 +1066,7 @@ function CTA() {
                   {user ? "My Galleries" : "Get Started — It\u2019s Free"}
                   <ChevronRight className="size-5 ml-1" />
                 </Button>
-              </Link>
+              </TransitionLink>
             )}
           </div>
           <p className="mt-6 text-sm text-muted-foreground">

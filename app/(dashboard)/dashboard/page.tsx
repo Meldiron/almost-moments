@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useViewTransitionRouter } from "@/lib/view-transitions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -164,7 +164,7 @@ function computeExpiryDate(
 
 export default function DashboardPage() {
   const { user, refresh } = useAuth();
-  const router = useRouter();
+  const router = useViewTransitionRouter();
 
   // Search, filter, sort state
   const [searchQuery, setSearchQuery] = useState("");

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import {
+  useViewTransitionRouter,
+  TransitionLink,
+} from "@/lib/view-transitions";
 import { OAuthProvider } from "appwrite";
 import { account } from "@/lib/appwrite";
 import { useAuth } from "@/lib/auth-context";
@@ -35,7 +37,7 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export default function SignInPage() {
-  const router = useRouter();
+  const router = useViewTransitionRouter();
   const { refresh } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -121,12 +123,12 @@ export default function SignInPage() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Password</Label>
-              <Link
+              <TransitionLink
                 href="/forgot-password"
                 className="text-xs text-lime hover:underline font-medium"
               >
                 Forgot password?
-              </Link>
+              </TransitionLink>
             </div>
             <Input
               id="password"
@@ -178,12 +180,12 @@ export default function SignInPage() {
         {/* Sign up link */}
         <p className="text-sm text-center mt-6 text-muted-foreground">
           Don&apos;t have an account?{" "}
-          <Link
+          <TransitionLink
             href="/sign-up"
             className="text-lime font-semibold hover:underline"
           >
             Sign up
-          </Link>
+          </TransitionLink>
         </p>
       </div>
     </>
