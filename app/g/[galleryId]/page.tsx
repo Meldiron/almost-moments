@@ -433,6 +433,7 @@ export default function GalleryPage() {
             blurhash,
             width,
             height,
+            createdAt: new Date(file.lastModified).toISOString(),
           }),
         });
         if (!res.ok) throw new Error("Failed to finalize file.");

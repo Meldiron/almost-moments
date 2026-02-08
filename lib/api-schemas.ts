@@ -26,4 +26,5 @@ export const filesBodySchema = z.object({
   blurhash: blurhashSchema,
   width: z.number().int().positive().max(20000),
   height: z.number().int().positive().max(20000),
+  createdAt: z.string().datetime().optional(),
 });

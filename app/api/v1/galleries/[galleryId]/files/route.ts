@@ -66,7 +66,7 @@ export async function POST(
     );
   }
 
-  const { fileId, blurhash, width, height } = bodyParsed.data;
+  const { fileId, blurhash, width, height, createdAt } = bodyParsed.data;
 
   // 5. Ensure file exists in storage
   try {
@@ -90,6 +90,7 @@ export async function POST(
         width,
         height,
         galleryId,
+        ...(createdAt && { $createdAt: createdAt }),
       },
     ],
   });
