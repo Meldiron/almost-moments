@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/popover";
 import Image from "next/image";
 import { SEO } from "@/components/seo";
+import { RelativeExpiry } from "@/components/relative-expiry";
 import {
   Plus,
   Images,
@@ -103,31 +104,6 @@ function formatVerboseDate(date: Date): string {
           : "th";
   const month = date.toLocaleDateString("en-US", { month: "short" });
   return `${day}${suffix} ${month} ${date.getFullYear()}`;
-}
-
-function formatNum(n: number): string {
-  const rounded = Math.round(n * 10) / 10;
-  return rounded % 1 === 0 ? String(Math.round(rounded)) : String(rounded);
-}
-
-function formatRelativeExpiry(expiryAt: string): string {
-  const now = Date.now();
-  const expiry = new Date(expiryAt).getTime();
-  const diffMs = expiry - now;
-  if (diffMs <= 0) return "Expired";
-  const diffDays = diffMs / (1000 * 60 * 60 * 24);
-  if (diffDays < 1) return "in less than a day";
-  if (diffDays < 14)
-    return `in ${Math.round(diffDays)} day${Math.round(diffDays) === 1 ? "" : "s"}`;
-  const diffMonths = diffDays / 30.44;
-  if (diffMonths < 1) {
-    const diffWeeks = diffDays / 7;
-    return `in ${formatNum(diffWeeks)} weeks`;
-  }
-  if (diffMonths < 12)
-    return `in ${formatNum(diffMonths)} month${Math.round(diffMonths * 10) / 10 === 1 ? "" : "s"}`;
-  const diffYears = diffDays / 365.25;
-  return `in ${formatNum(diffYears)} year${Math.round(diffYears * 10) / 10 === 1 ? "" : "s"}`;
 }
 
 function computeExpiryDate(
@@ -716,9 +692,7 @@ export default function DashboardPage() {
               const photoCount = gallery.totalAssets ?? 0;
               const isExpired =
                 gallery.expiryAt && new Date(gallery.expiryAt) < new Date();
-              const expiryLabel = gallery.expiryAt
-                ? formatRelativeExpiry(gallery.expiryAt)
-                : "Never";
+              const hasExpiry = !!gallery.expiryAt;
 
               return (
                 <div
@@ -783,7 +757,11 @@ export default function DashboardPage() {
                       <p
                         className={`text-xs font-medium ${isExpired ? "text-destructive" : "text-muted-foreground"}`}
                       >
-                        {expiryLabel}
+                        {hasExpiry ? (
+                          <RelativeExpiry date={gallery.expiryAt!} />
+                        ) : (
+                          "Never"
+                        )}
                       </p>
                     </div>
                   </div>

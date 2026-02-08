@@ -63,6 +63,7 @@ import { databases } from "@/lib/generated/appwrite";
 import type { Galleries, GalleryAssets } from "@/lib/generated/appwrite";
 import { cn } from "@/lib/utils";
 import { SAMPLE_GALLERY_ID } from "@/lib/generated/appwrite/constants";
+import { RelativeExpiry } from "@/components/relative-expiry";
 
 type PageState =
   | { status: "loading" }
@@ -190,31 +191,6 @@ function GalleryImage({
 }
 
 // ─── Helpers ───────────────────────────────────────────────────
-function formatRelativeTime(dateString: string): string {
-  const target = new Date(dateString).getTime();
-  const now = Date.now();
-  const diffMs = target - now;
-  const absDiff = Math.abs(diffMs);
-  const isPast = diffMs < 0;
-
-  const minutes = Math.floor(absDiff / 60_000);
-  const hours = Math.floor(absDiff / 3_600_000);
-  const days = Math.floor(absDiff / 86_400_000);
-  const weeks = Math.floor(days / 7);
-  const months = Math.floor(days / 30);
-
-  let label: string;
-  if (minutes < 1) label = "just now";
-  else if (minutes < 60) label = `${minutes} minute${minutes === 1 ? "" : "s"}`;
-  else if (hours < 24) label = `${hours} hour${hours === 1 ? "" : "s"}`;
-  else if (days < 7) label = `${days} day${days === 1 ? "" : "s"}`;
-  else if (weeks < 5) label = `${weeks} week${weeks === 1 ? "" : "s"}`;
-  else label = `${months} month${months === 1 ? "" : "s"}`;
-
-  if (label === "just now") return label;
-  return isPast ? `${label} ago` : `in ${label}`;
-}
-
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -320,7 +296,7 @@ function ExpiredState({ gallery }: { gallery: Galleries }) {
         <p className="mt-3 text-muted-foreground leading-relaxed">
           This gallery expired{" "}
           <span className="font-medium text-foreground">
-            {formatRelativeTime(gallery.expiryAt!)}
+            <RelativeExpiry date={gallery.expiryAt!} />
           </span>
           . The organizer may have set a time limit for uploads. Contact them if
           you think this is a mistake.
@@ -935,9 +911,13 @@ export default function GalleryPage() {
               className="gap-1.5 px-3 py-1 text-sm bg-amber/10 text-amber-foreground border-amber/25 dark:bg-amber/10 dark:text-amber dark:border-amber/20"
             >
               <Clock className="size-3.5" />
-              {gallery.expiryAt
-                ? `Expires ${formatRelativeTime(gallery.expiryAt)}`
-                : "No expiry"}
+              {gallery.expiryAt ? (
+                <>
+                  Expires <RelativeExpiry date={gallery.expiryAt} />
+                </>
+              ) : (
+                "No expiry"
+              )}
             </Badge>
           </div>
         </div>

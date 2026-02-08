@@ -45,6 +45,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { SEO } from "@/components/seo";
+import { RelativeExpiry } from "@/components/relative-expiry";
 import {
   ArrowLeft,
   Info,
@@ -83,31 +84,6 @@ const galleriesTable = databases.use("main").use("galleries");
 const galleryAssetsTable = databases.use("main").use("galleryAssets");
 
 // ─── Helpers ────────────────────────────────────────────────────
-
-function formatNum(n: number): string {
-  const rounded = Math.round(n * 10) / 10;
-  return rounded % 1 === 0 ? String(Math.round(rounded)) : String(rounded);
-}
-
-function formatRelativeExpiry(expiryAt: string): string {
-  const now = Date.now();
-  const expiry = new Date(expiryAt).getTime();
-  const diffMs = expiry - now;
-  if (diffMs <= 0) return "Expired";
-  const diffDays = diffMs / (1000 * 60 * 60 * 24);
-  if (diffDays < 1) return "in less than a day";
-  if (diffDays < 14)
-    return `in ${Math.round(diffDays)} day${Math.round(diffDays) === 1 ? "" : "s"}`;
-  const diffMonths = diffDays / 30.44;
-  if (diffMonths < 1) {
-    const diffWeeks = diffDays / 7;
-    return `in ${formatNum(diffWeeks)} weeks`;
-  }
-  if (diffMonths < 12)
-    return `in ${formatNum(diffMonths)} month${Math.round(diffMonths * 10) / 10 === 1 ? "" : "s"}`;
-  const diffYears = diffDays / 365.25;
-  return `in ${formatNum(diffYears)} year${Math.round(diffYears * 10) / 10 === 1 ? "" : "s"}`;
-}
 
 function formatVerboseDate(date: Date): string {
   const day = date.getDate();
@@ -736,9 +712,6 @@ export default function GalleryManagePage() {
   }
 
   const isExpired = gallery.expiryAt && new Date(gallery.expiryAt) < new Date();
-  const expiryLabel = gallery.expiryAt
-    ? formatRelativeExpiry(gallery.expiryAt)
-    : "Never";
 
   // Force re-read of cache when fileMetaLoaded changes
   void fileMetaLoaded;
@@ -889,7 +862,7 @@ export default function GalleryManagePage() {
             className={`size-3.5 ${isExpired ? "text-destructive" : "text-amber"}`}
           />
           <span className="text-sm font-medium">
-            Expires {expiryLabel.toLowerCase()}
+            Expires <RelativeExpiry date={gallery.expiryAt!} />
           </span>
         </div>
       </div>
@@ -926,8 +899,9 @@ export default function GalleryManagePage() {
             <div>
               <p className="font-semibold text-sm">Gallery link expires soon</p>
               <p className="text-sm text-muted-foreground">
-                The shared link will expire {expiryLabel.toLowerCase()}.
-                Consider extending it.
+                The shared link will expire{" "}
+                <RelativeExpiry date={gallery.expiryAt!} />. Consider extending
+                it.
               </p>
             </div>
           </div>
