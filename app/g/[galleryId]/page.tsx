@@ -766,7 +766,7 @@ export default function GalleryPage() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <SEO title={gallery.name} />
+      <SEO title="Gallery" />
 
       {/* Hidden file input */}
       <input
