@@ -64,6 +64,7 @@ import type { Galleries, GalleryAssets } from "@/lib/generated/appwrite";
 import { cn } from "@/lib/utils";
 import { SAMPLE_GALLERY_ID } from "@/lib/generated/appwrite/constants";
 import { RelativeExpiry } from "@/components/relative-expiry";
+import { ImageFormat } from "appwrite";
 
 type PageState =
   | { status: "loading" }
@@ -161,6 +162,7 @@ function GalleryImage({
     fileId: asset.fileId,
     width: 800,
     quality: 80,
+    output: ImageFormat.Webp,
   });
 
   return (
@@ -972,6 +974,7 @@ export default function GalleryPage() {
                   fileId: asset.fileId,
                   width: 1920,
                   quality: 90,
+                  output: ImageFormat.Webp,
                 }),
               }))}
               open={lightboxIndex >= 0}
