@@ -4,7 +4,7 @@ const SITE_NAME = "Almost Moments";
 const DEFAULT_DESCRIPTION =
   "Create shared photo galleries for your events. Guests scan a QR code, upload photos from their phones — no app needed. Free forever.";
 const DEFAULT_OG_IMAGE = "/og.png";
-const SITE_URL = "https://almostmoments.com";
+const SITE_URL = "https://moments.almostapps.eu";
 
 type SEOProps = {
   title?: string;
