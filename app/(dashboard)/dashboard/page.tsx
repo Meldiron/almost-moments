@@ -163,7 +163,7 @@ function computeExpiryDate(
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, softRefresh } = useAuth();
   const router = useViewTransitionRouter();
 
   // Search, filter, sort state
@@ -221,6 +221,7 @@ export default function DashboardPage() {
         ...user?.prefs,
         favouriteGalleryIds: Array.from(next),
       });
+      await softRefresh();
     } catch {
       // Revert on failure
       setFavouriteIds(favouriteIds);

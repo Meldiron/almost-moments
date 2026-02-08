@@ -181,7 +181,7 @@ type FileMeta = { name: string; sizeOriginal: number };
 export default function GalleryManagePage() {
   const params = useParams();
   const router = useViewTransitionRouter();
-  const { user } = useAuth();
+  const { user, softRefresh } = useAuth();
   const galleryId = (params.galleryId as string) ?? "";
 
   // ─── Gallery state ──────────────────────────────────────────
@@ -367,6 +367,7 @@ export default function GalleryManagePage() {
         ...user.prefs,
         favouriteGalleryIds: Array.from(next),
       });
+      await softRefresh();
     } catch {
       setFavouriteIds(favouriteIds);
     }
