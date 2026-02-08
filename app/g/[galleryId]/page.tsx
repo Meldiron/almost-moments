@@ -211,6 +211,7 @@ function isVideoFile(name: string): boolean {
 function GallerySkeleton() {
   return (
     <div className="min-h-dvh bg-background">
+      <SEO title="Gallery" />
       <div className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-md">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-3">
