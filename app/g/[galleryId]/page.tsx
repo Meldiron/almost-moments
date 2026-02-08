@@ -62,6 +62,7 @@ import { storage, ID } from "@/lib/appwrite";
 import { databases } from "@/lib/generated/appwrite";
 import type { Galleries, GalleryAssets } from "@/lib/generated/appwrite";
 import { cn } from "@/lib/utils";
+import { SAMPLE_GALLERY_ID } from "@/lib/generated/appwrite/constants";
 
 type PageState =
   | { status: "loading" }
@@ -363,7 +364,15 @@ export default function GalleryPage() {
   const [uploading, setUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const isSampleGallery = galleryId === SAMPLE_GALLERY_ID;
+
   function triggerFileInput() {
+    if (isSampleGallery) {
+      setErrorMessage(
+        "This is a sample gallery. Uploading images is not allowed.",
+      );
+      return;
+    }
     fileInputRef.current?.click();
   }
 
@@ -1155,7 +1164,7 @@ export default function GalleryPage() {
       >
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Upload error</DialogTitle>
+            <DialogTitle>Upload Forbidden</DialogTitle>
             <DialogDescription>{errorMessage}</DialogDescription>
           </DialogHeader>
           <div className="flex justify-end pt-2">

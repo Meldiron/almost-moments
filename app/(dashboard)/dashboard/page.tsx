@@ -163,7 +163,7 @@ function computeExpiryDate(
 }
 
 export default function DashboardPage() {
-  const { user, refresh } = useAuth();
+  const { user } = useAuth();
   const router = useViewTransitionRouter();
 
   // Search, filter, sort state
@@ -221,7 +221,6 @@ export default function DashboardPage() {
         ...user?.prefs,
         favouriteGalleryIds: Array.from(next),
       });
-      await refresh();
     } catch {
       // Revert on failure
       setFavouriteIds(favouriteIds);
@@ -459,7 +458,7 @@ export default function DashboardPage() {
     if (needsClientFilter) rows = applyClientFilters(rows);
     return rows;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [favouriteIds, debouncedSearch, activeFilters]);
+  }, [debouncedSearch, activeFilters]);
 
   // Re-fetch when search/filter/sort/favourites changes
   useEffect(() => {

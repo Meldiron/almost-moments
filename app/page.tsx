@@ -3,6 +3,7 @@
 import { useContext, useState, useEffect, useRef, type ReactNode } from "react";
 import Image from "next/image";
 import { TransitionLink } from "@/lib/view-transitions";
+import { SAMPLE_GALLERY_ID } from "@/lib/generated/appwrite/constants";
 import { ThemeContext } from "./layout";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -435,13 +436,15 @@ function Hero() {
               </Button>
             </TransitionLink>
           )}
-          <Button
-            variant="outline"
-            size="lg"
-            className="rounded-full px-8 h-13 text-base font-medium"
-          >
-            See How It Works
-          </Button>
+          <TransitionLink href={`/g/${SAMPLE_GALLERY_ID}`}>
+            <Button
+              variant="outline"
+              size="lg"
+              className="rounded-full px-8 h-13 text-base font-medium"
+            >
+              See Sample Gallery
+            </Button>
+          </TransitionLink>
         </div>
 
         <div className="animate-slide-up stagger-5 mt-12 flex items-center justify-center gap-6 text-sm text-muted-foreground">

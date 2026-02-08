@@ -16,6 +16,7 @@ type AuthContextType = {
   loading: boolean;
   mfaRequired: boolean;
   refresh: () => Promise<void>;
+  softRefresh: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -23,6 +24,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   mfaRequired: false,
   refresh: async () => {},
+  softRefresh: async () => {},
 });
 
 export function useAuth() {
@@ -71,12 +73,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const softRefresh = useCallback(async () => {
+    try {
+      const u = await account.get();
+      setUser(u);
+    } catch {
+      // Ignore — keep current user state
+    }
+  }, []);
+
   useEffect(() => {
     refresh();
   }, [refresh]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, mfaRequired, refresh }}>
+    <AuthContext.Provider
+      value={{ user, loading, mfaRequired, refresh, softRefresh }}
+    >
       {children}
     </AuthContext.Provider>
   );

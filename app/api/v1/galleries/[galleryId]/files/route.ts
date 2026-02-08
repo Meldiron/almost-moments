@@ -3,6 +3,7 @@ import { ID } from "node-appwrite";
 import { tablesDB, storage } from "@/lib/appwrite-server";
 import { galleryIdParamsSchema, filesBodySchema } from "@/lib/api-schemas";
 import type { Galleries } from "@/lib/generated/appwrite";
+import { SAMPLE_GALLERY_ID } from "@/lib/generated/appwrite/constants";
 
 export async function POST(
   request: Request,
@@ -32,6 +33,13 @@ export async function POST(
     });
   } catch {
     return NextResponse.json({ error: "Gallery not found." }, { status: 404 });
+  }
+
+  if (gallery.$id === SAMPLE_GALLERY_ID) {
+    return NextResponse.json(
+      { error: "This is a sample gallery and uploading is forbidden." },
+      { status: 400 },
+    );
   }
 
   // 3. Ensure gallery hasn't expired
