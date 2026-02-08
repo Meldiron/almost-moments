@@ -37,7 +37,7 @@ export default function AuthLayout({
     <div className="min-h-dvh flex flex-col relative overflow-hidden">
       {/* Dot pattern background — fades out toward center */}
       <div
-        className="absolute inset-0 pattern-dots-lime"
+        className="absolute inset-0 pattern-dots-brand"
         style={{
           maskImage:
             "radial-gradient(ellipse at center, transparent 20%, black 75%)",

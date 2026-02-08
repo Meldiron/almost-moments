@@ -597,7 +597,7 @@ export default function DashboardPage() {
         </div>
         <Button
           onClick={() => setOpen(true)}
-          className="rounded-full bg-lime text-lime-foreground hover:bg-lime/90 font-semibold"
+          className="rounded-full bg-brand text-brand-foreground hover:bg-brand/90 font-semibold"
         >
           <Plus className="size-4 mr-1.5" />
           Create Gallery
@@ -687,8 +687,8 @@ export default function DashboardPage() {
       {/* Empty state */}
       {isEmpty && (
         <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-          <div className="size-16 rounded-2xl bg-lime/15 flex items-center justify-center mx-auto mb-5">
-            <Images className="size-8 text-lime" />
+          <div className="size-16 rounded-2xl bg-brand/15 flex items-center justify-center mx-auto mb-5">
+            <Images className="size-8 text-brand" />
           </div>
           <h2 className="font-sans text-lg font-semibold mb-2">
             No galleries yet
@@ -699,7 +699,7 @@ export default function DashboardPage() {
           </p>
           <Button
             onClick={() => setOpen(true)}
-            className="rounded-full bg-lime text-lime-foreground hover:bg-lime/90 font-semibold"
+            className="rounded-full bg-brand text-brand-foreground hover:bg-brand/90 font-semibold"
           >
             <Plus className="size-4 mr-1.5" />
             Create Your First Gallery
@@ -842,7 +842,7 @@ export default function DashboardPage() {
                       <DropdownMenuTrigger asChild>
                         <Button
                           size="sm"
-                          className="rounded-lg bg-lime text-lime-foreground hover:bg-lime/90 font-semibold flex-1"
+                          className="rounded-lg bg-brand text-brand-foreground hover:bg-brand/90 font-semibold flex-1"
                         >
                           <Share2 className="size-4 mr-1.5" />
                           Share
@@ -861,7 +861,7 @@ export default function DashboardPage() {
                           className="cursor-pointer"
                         >
                           {copied === gallery.$id ? (
-                            <Check className="size-4 mr-2 text-lime" />
+                            <Check className="size-4 mr-2 text-brand" />
                           ) : (
                             <Copy className="size-4 mr-2" />
                           )}
@@ -1038,7 +1038,7 @@ export default function DashboardPage() {
               <Button
                 type="submit"
                 disabled={!name.trim() || creating}
-                className="rounded-xl bg-lime text-lime-foreground hover:bg-lime/90 font-semibold"
+                className="rounded-xl bg-brand text-brand-foreground hover:bg-brand/90 font-semibold"
               >
                 {creating ? (
                   <>

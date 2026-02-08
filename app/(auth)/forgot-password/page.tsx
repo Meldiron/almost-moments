@@ -44,8 +44,8 @@ export default function ForgotPasswordPage() {
       <>
         <SEO title="Forgot Password" />
         <div className="rounded-2xl bg-card border border-border p-8 shadow-xl text-center">
-          <div className="size-14 rounded-full bg-lime/20 flex items-center justify-center mx-auto mb-6">
-            <Mail className="size-7 text-lime" />
+          <div className="size-14 rounded-full bg-brand/20 flex items-center justify-center mx-auto mb-6">
+            <Mail className="size-7 text-brand" />
           </div>
           <h1 className="font-sans text-2xl font-bold">Check your email</h1>
           <p className="text-muted-foreground text-sm mt-3 leading-relaxed">
@@ -101,7 +101,7 @@ export default function ForgotPasswordPage() {
 
           <Button
             type="submit"
-            className="w-full rounded-xl h-12 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold text-sm"
+            className="w-full rounded-xl h-12 bg-brand text-brand-foreground hover:bg-brand/90 font-semibold text-sm"
             disabled={loading}
           >
             {loading ? "Sending..." : "Send magic link"}

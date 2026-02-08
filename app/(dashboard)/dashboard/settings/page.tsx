@@ -94,7 +94,7 @@ function EmailSection() {
           </p>
 
           {success && (
-            <p className="text-sm text-lime mb-4 flex items-center gap-1.5">
+            <p className="text-sm text-brand mb-4 flex items-center gap-1.5">
               <Check className="size-4" /> Email updated successfully.
             </p>
           )}
@@ -148,7 +148,7 @@ function EmailSection() {
               <div className="flex gap-2">
                 <Button
                   type="submit"
-                  className="rounded-xl bg-lime text-lime-foreground hover:bg-lime/90 font-medium"
+                  className="rounded-xl bg-brand text-brand-foreground hover:bg-brand/90 font-medium"
                   disabled={loading}
                 >
                   {loading ? "Updating..." : "Update email"}
@@ -220,7 +220,7 @@ function PasswordSection() {
           </p>
 
           {success && (
-            <p className="text-sm text-lime mb-4 flex items-center gap-1.5">
+            <p className="text-sm text-brand mb-4 flex items-center gap-1.5">
               <Check className="size-4" /> Password updated successfully.
             </p>
           )}
@@ -481,7 +481,7 @@ function TwoFASection() {
             <div className="h-9 w-32 rounded-xl bg-muted animate-pulse" />
           ) : verified ? (
             <div className="space-y-3">
-              <p className="text-sm text-lime flex items-center gap-1.5">
+              <p className="text-sm text-brand flex items-center gap-1.5">
                 <Check className="size-4" /> Two-factor authentication is
                 enabled.
               </p>
@@ -594,7 +594,7 @@ function TwoFASection() {
                       aria-label="Copy secret"
                     >
                       {copied ? (
-                        <Check className="size-3.5 text-lime" />
+                        <Check className="size-3.5 text-brand" />
                       ) : (
                         <Copy className="size-3.5" />
                       )}
@@ -624,7 +624,7 @@ function TwoFASection() {
                   {error && <p className="text-sm text-destructive">{error}</p>}
                   <Button
                     type="submit"
-                    className="rounded-xl bg-lime text-lime-foreground hover:bg-lime/90 font-medium w-full"
+                    className="rounded-xl bg-brand text-brand-foreground hover:bg-brand/90 font-medium w-full"
                     disabled={loading}
                   >
                     {loading ? "Verifying..." : "Verify and enable"}
@@ -674,7 +674,7 @@ function TwoFASection() {
                     Download
                   </Button>
                   <Button
-                    className="rounded-xl bg-lime text-lime-foreground hover:bg-lime/90 font-medium flex-1"
+                    className="rounded-xl bg-brand text-brand-foreground hover:bg-brand/90 font-medium flex-1"
                     onClick={handleSavedCodes}
                   >
                     I&apos;ve saved my codes

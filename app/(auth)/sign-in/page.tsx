@@ -125,7 +125,7 @@ export default function SignInPage() {
               <Label htmlFor="password">Password</Label>
               <TransitionLink
                 href="/forgot-password"
-                className="text-xs text-lime hover:underline font-medium"
+                className="text-xs text-brand hover:underline font-medium"
               >
                 Forgot password?
               </TransitionLink>
@@ -147,7 +147,7 @@ export default function SignInPage() {
 
           <Button
             type="submit"
-            className="w-full rounded-xl h-12 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold text-sm"
+            className="w-full rounded-xl h-12 bg-brand text-brand-foreground hover:bg-brand/90 font-semibold text-sm"
             disabled={loading}
           >
             {loading ? "Signing in..." : "Sign in"}
@@ -182,7 +182,7 @@ export default function SignInPage() {
           Don&apos;t have an account?{" "}
           <TransitionLink
             href="/sign-up"
-            className="text-lime font-semibold hover:underline"
+            className="text-brand font-semibold hover:underline"
           >
             Sign up
           </TransitionLink>

@@ -814,7 +814,7 @@ export default function GalleryPage() {
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               onClick={triggerFileInput}
-              className="inline-flex items-center gap-1.5 rounded-full px-3.5 h-9 bg-lime/20 text-sm font-medium text-lime-foreground hover:bg-lime/30 dark:bg-lime/15 dark:text-lime dark:hover:bg-lime/25 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-full px-3.5 h-9 bg-brand/20 text-sm font-medium text-brand-foreground hover:bg-brand/30 dark:bg-brand/15 dark:text-brand dark:hover:bg-brand/25 transition-colors"
             >
               <Upload className="size-4" />
               <span className="hidden sm:inline">Upload images</span>
@@ -876,7 +876,7 @@ export default function GalleryPage() {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={copyLink} className="cursor-pointer">
                   {copied ? (
-                    <Check className="size-4 mr-2 text-lime" />
+                    <Check className="size-4 mr-2 text-brand" />
                   ) : (
                     <Copy className="size-4 mr-2" />
                   )}
@@ -901,7 +901,7 @@ export default function GalleryPage() {
 
       {/* ─── Hero ────────────────────────────────────────────── */}
       <header className="relative overflow-hidden">
-        <div className="absolute inset-0 pattern-dots-lime opacity-40 dark:opacity-20 pointer-events-none" />
+        <div className="absolute inset-0 pattern-dots-brand opacity-40 dark:opacity-20 pointer-events-none" />
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-10 sm:pt-14 pb-8 sm:pb-10">
           <div className="animate-slide-up">
             <h1 className="text-4xl sm:text-5xl font-bold font-sans tracking-tight text-foreground">
@@ -955,7 +955,7 @@ export default function GalleryPage() {
             </p>
             <button
               onClick={triggerFileInput}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-lime px-6 py-3 text-sm font-semibold text-lime-foreground hover:opacity-90 transition-opacity"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-brand-foreground hover:opacity-90 transition-opacity"
             >
               <Upload className="size-4" />
               Upload photos
@@ -1063,7 +1063,7 @@ export default function GalleryPage() {
                       <p className="text-xs text-muted-foreground truncate min-w-0 flex-1">
                         {file.name}
                       </p>
-                      <Check className="size-3.5 text-lime shrink-0" />
+                      <Check className="size-3.5 text-brand shrink-0" />
                     </li>
                   );
                 }
@@ -1091,7 +1091,7 @@ export default function GalleryPage() {
                               <span className="text-destructive">Failed</span>
                               <button
                                 onClick={() => retrySingleFile(i)}
-                                className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:text-lime transition-colors"
+                                className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:text-brand transition-colors"
                               >
                                 <RotateCcw className="size-3" />
                                 Retry

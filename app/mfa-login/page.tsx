@@ -78,7 +78,7 @@ export default function MFALoginPage() {
       <SEO title="Verify Identity" />
       {/* Dot pattern background — fades out toward center */}
       <div
-        className="absolute inset-0 pattern-dots-lime"
+        className="absolute inset-0 pattern-dots-brand"
         style={{
           maskImage:
             "radial-gradient(ellipse at center, transparent 20%, black 75%)",
@@ -166,7 +166,7 @@ export default function MFALoginPage() {
 
                 <Button
                   type="submit"
-                  className="w-full rounded-xl h-12 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold text-sm"
+                  className="w-full rounded-xl h-12 bg-brand text-brand-foreground hover:bg-brand/90 font-semibold text-sm"
                   disabled={loading || !challengeId}
                 >
                   {loading ? "Verifying..." : "Verify and sign in"}

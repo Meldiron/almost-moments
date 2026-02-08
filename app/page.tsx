@@ -151,7 +151,7 @@ function Navbar() {
             <TransitionLink href={user ? "/dashboard" : "/sign-in"}>
               <Button
                 size="sm"
-                className="hidden md:inline-flex rounded-full px-5 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold"
+                className="hidden md:inline-flex rounded-full px-5 bg-brand text-brand-foreground hover:bg-brand/90 font-semibold"
               >
                 {user ? "My Galleries" : "Sign in"}
               </Button>
@@ -199,7 +199,7 @@ function Navbar() {
             <div className="h-10 w-full rounded-full bg-secondary animate-pulse" />
           ) : (
             <TransitionLink href={user ? "/dashboard" : "/sign-in"}>
-              <Button className="rounded-full bg-lime text-lime-foreground hover:bg-lime/90 font-semibold w-full">
+              <Button className="rounded-full bg-brand text-brand-foreground hover:bg-brand/90 font-semibold w-full">
                 {user ? "My Galleries" : "Sign in"}
               </Button>
             </TransitionLink>
@@ -391,7 +391,7 @@ function Hero() {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Dot pattern background — fades out toward center */}
       <div
-        className="absolute inset-0 pattern-dots-lime"
+        className="absolute inset-0 pattern-dots-brand"
         style={{
           maskImage:
             "radial-gradient(ellipse at center, transparent 30%, black 90%)",
@@ -413,7 +413,7 @@ function Hero() {
 
         <h1 className="animate-slide-up stagger-1 font-sans text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.05]">
           Every guest. <br className="hidden sm:block" />
-          <span className="text-lime">Every moment.</span>{" "}
+          <span className="text-brand">Every moment.</span>{" "}
           <br className="hidden sm:block" />
           One gallery.
         </h1>
@@ -429,7 +429,7 @@ function Hero() {
             <TransitionLink href={user ? "/dashboard" : "/sign-in"}>
               <Button
                 size="lg"
-                className="rounded-full px-8 h-13 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-semibold shadow-lg shadow-lime/20"
+                className="rounded-full px-8 h-13 text-base bg-brand text-brand-foreground hover:bg-brand/90 font-semibold shadow-lg shadow-brand/20"
               >
                 {user ? "My Galleries" : "Get Started"}
                 <ArrowRight className="size-4 ml-1" />
@@ -449,13 +449,13 @@ function Hero() {
 
         <div className="animate-slide-up stagger-5 mt-12 flex items-center justify-center gap-6 text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <Check className="size-4 text-lime" /> No app needed
+            <Check className="size-4 text-brand" /> No app needed
           </span>
           <span className="flex items-center gap-1.5">
-            <Check className="size-4 text-lime" /> 100% free
+            <Check className="size-4 text-brand" /> 100% free
           </span>
           <span className="flex items-center gap-1.5">
-            <Check className="size-4 text-lime" /> No sign-up for guests
+            <Check className="size-4 text-brand" /> No sign-up for guests
           </span>
         </div>
 
@@ -539,8 +539,8 @@ function Hero() {
               }}
             >
               <div className="rounded-2xl bg-card border border-border px-4 py-3 shadow-xl flex items-center gap-3">
-                <div className="size-10 rounded-full bg-lime/20 flex items-center justify-center">
-                  <Users className="size-5 text-lime" />
+                <div className="size-10 rounded-full bg-brand/20 flex items-center justify-center">
+                  <Users className="size-5 text-brand" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold">
@@ -582,9 +582,9 @@ const howItWorksSteps = [
     title: "Create a gallery",
     description:
       "Give your event a name and get a unique gallery link and QR code in seconds.",
-    bgClass: "bg-lime/15",
-    textClass: "text-lime",
-    dotClass: "bg-lime",
+    bgClass: "bg-brand/15",
+    textClass: "text-brand",
+    dotClass: "bg-brand",
     number: "01",
   },
   {
@@ -645,7 +645,7 @@ function HowItWorks() {
       className="py-28 sm:py-36 relative overflow-hidden"
     >
       <div
-        className="absolute inset-0 pattern-dots-lime"
+        className="absolute inset-0 pattern-dots-brand"
         style={{
           maskImage:
             "radial-gradient(ellipse at center, transparent 30%, black 90%)",
@@ -734,7 +734,7 @@ function Features() {
           </Badge>
           <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
             Everything you need. <br className="hidden sm:block" />
-            <span className="text-lime">Nothing you don&apos;t.</span>
+            <span className="text-brand">Nothing you don&apos;t.</span>
           </h2>
         </AnimateIn>
 
@@ -747,8 +747,8 @@ function Features() {
           >
             <div className="rounded-3xl bg-card border border-border p-8 sm:p-10 h-full flex flex-col justify-between ">
               <div>
-                <div className="size-14 rounded-2xl bg-lime/15 flex items-center justify-center mb-6">
-                  <Smartphone className="size-7 text-lime" />
+                <div className="size-14 rounded-2xl bg-brand/15 flex items-center justify-center mb-6">
+                  <Smartphone className="size-7 text-brand" />
                 </div>
                 <h3 className="font-sans text-2xl sm:text-3xl font-bold mb-3">
                   Zero friction for guests
@@ -768,7 +768,7 @@ function Features() {
                 ].map((tag) => (
                   <span
                     key={tag}
-                    className="px-3.5 py-1.5 rounded-full bg-lime/10 text-lime text-sm font-medium border border-lime/20"
+                    className="px-3.5 py-1.5 rounded-full bg-brand/10 text-brand text-sm font-medium border border-brand/20"
                   >
                     {tag}
                   </span>
@@ -849,7 +849,7 @@ function Comparison() {
     <section className="py-28 sm:py-36 relative overflow-hidden">
       {/* Dot pattern background — fades out toward center, top and bottom */}
       <div
-        className="absolute inset-0 pattern-dots-lime"
+        className="absolute inset-0 pattern-dots-brand"
         style={{
           maskImage:
             "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 65%, transparent 100%)",
@@ -897,7 +897,7 @@ function Comparison() {
                 ].map((row) => (
                   <div key={row.feature} className="flex items-center gap-3">
                     {row.has ? (
-                      <Check className="size-5 text-lime shrink-0" />
+                      <Check className="size-5 text-brand shrink-0" />
                     ) : (
                       <X className="size-5 text-muted-foreground/30 shrink-0" />
                     )}
@@ -914,8 +914,8 @@ function Comparison() {
 
           {/* Almost Moments card */}
           <AnimateIn animation="animate-slide-in-right">
-            <div className="rounded-3xl bg-card border-2 border-lime/30 p-8 sm:p-10 h-full shadow-xl">
-              <h3 className="font-sans text-xl font-bold mb-2 text-lime">
+            <div className="rounded-3xl bg-card border-2 border-brand/30 p-8 sm:p-10 h-full shadow-xl">
+              <h3 className="font-sans text-xl font-bold mb-2 text-brand">
                 Almost Moments
               </h3>
               <p className="text-sm text-muted-foreground mb-8">
@@ -932,7 +932,7 @@ function Comparison() {
                   "Live photo feed",
                 ].map((feature) => (
                   <div key={feature} className="flex items-center gap-3">
-                    <Check className="size-5 text-lime shrink-0" />
+                    <Check className="size-5 text-brand shrink-0" />
                     <span className="text-sm font-medium">{feature}</span>
                   </div>
                 ))}
@@ -1033,7 +1033,7 @@ function CTA() {
       <div className="absolute inset-0 bg-white dark:bg-black" />
       {/* Dot pattern background — fades out toward center and top */}
       <div
-        className="absolute inset-0 pattern-dots-lime"
+        className="absolute inset-0 pattern-dots-brand"
         style={{
           maskImage:
             "radial-gradient(ellipse at center, transparent 30%, black 90%), linear-gradient(to bottom, transparent 0%, black 35%, black 100%)",
@@ -1051,7 +1051,7 @@ function CTA() {
           </div>
           <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
             Ready to capture <br className="hidden sm:block" />
-            <span className="text-lime">every moment?</span>
+            <span className="text-brand">every moment?</span>
           </h2>
           <p className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto">
             Create your gallery in under 30 seconds. Free forever. No credit
@@ -1064,7 +1064,7 @@ function CTA() {
               <TransitionLink href={user ? "/dashboard" : "/sign-in"}>
                 <Button
                   size="lg"
-                  className="rounded-full px-10 h-14 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-bold shadow-lg shadow-lime/25"
+                  className="rounded-full px-10 h-14 text-base bg-brand text-brand-foreground hover:bg-brand/90 font-bold shadow-lg shadow-brand/25"
                 >
                   {user ? "My Galleries" : "Get Started — It\u2019s Free"}
                   <ChevronRight className="size-5 ml-1" />

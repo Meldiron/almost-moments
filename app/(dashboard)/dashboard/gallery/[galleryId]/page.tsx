@@ -817,7 +817,7 @@ export default function GalleryManagePage() {
             <DropdownMenuTrigger asChild>
               <Button
                 size="sm"
-                className="rounded-lg bg-lime text-lime-foreground hover:bg-lime/90 font-semibold"
+                className="rounded-lg bg-brand text-brand-foreground hover:bg-brand/90 font-semibold"
               >
                 <Share2 className="size-4 mr-1.5" />
                 Share
@@ -833,7 +833,7 @@ export default function GalleryManagePage() {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={copyLink} className="cursor-pointer">
                 {copied ? (
-                  <Check className="size-4 mr-2 text-lime" />
+                  <Check className="size-4 mr-2 text-brand" />
                 ) : (
                   <Copy className="size-4 mr-2" />
                 )}
@@ -907,8 +907,8 @@ export default function GalleryManagePage() {
             {gallery.totalAssets === 1 ? "" : "s"}
           </span>
         </div>
-        <div className="flex items-center gap-2 rounded-full bg-lime/10 border border-lime/20 px-3.5 py-1.5">
-          <CalendarDays className="size-3.5 text-lime" />
+        <div className="flex items-center gap-2 rounded-full bg-brand/10 border border-brand/20 px-3.5 py-1.5">
+          <CalendarDays className="size-3.5 text-brand" />
           <span className="text-sm font-medium">
             Created {formatVerboseDate(new Date(gallery.$createdAt))}
           </span>
@@ -1080,7 +1080,7 @@ export default function GalleryManagePage() {
             <Button
               type="submit"
               disabled={!editName.trim() || saving}
-              className="rounded-xl bg-lime text-lime-foreground hover:bg-lime/90 font-semibold"
+              className="rounded-xl bg-brand text-brand-foreground hover:bg-brand/90 font-semibold"
             >
               {saving ? (
                 <>

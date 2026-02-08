@@ -155,7 +155,7 @@ export default function SignUpPage() {
 
           <Button
             type="submit"
-            className="w-full rounded-xl h-12 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold text-sm"
+            className="w-full rounded-xl h-12 bg-brand text-brand-foreground hover:bg-brand/90 font-semibold text-sm"
             disabled={loading}
           >
             {loading ? "Creating account..." : "Create account"}
@@ -190,7 +190,7 @@ export default function SignUpPage() {
           Already have an account?{" "}
           <TransitionLink
             href="/sign-in"
-            className="text-lime font-semibold hover:underline"
+            className="text-brand font-semibold hover:underline"
           >
             Sign in
           </TransitionLink>

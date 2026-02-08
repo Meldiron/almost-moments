@@ -44,7 +44,7 @@ function MagicLinkCallbackContent() {
         <p className="text-sm text-destructive mb-4">{error}</p>
         <a
           href="/forgot-password"
-          className="text-sm text-lime font-semibold hover:underline"
+          className="text-sm text-brand font-semibold hover:underline"
         >
           Request a new link
         </a>
@@ -54,7 +54,7 @@ function MagicLinkCallbackContent() {
 
   return (
     <div className="rounded-2xl bg-card border border-border p-8 shadow-xl text-center">
-      <Loader2 className="size-8 text-lime animate-spin mx-auto mb-4" />
+      <Loader2 className="size-8 text-brand animate-spin mx-auto mb-4" />
       <p className="text-sm text-muted-foreground">Signing you in...</p>
     </div>
   );
@@ -67,7 +67,7 @@ export default function MagicLinkCallbackPage() {
       <Suspense
         fallback={
           <div className="rounded-2xl bg-card border border-border p-8 shadow-xl text-center">
-            <Loader2 className="size-8 text-lime animate-spin mx-auto mb-4" />
+            <Loader2 className="size-8 text-brand animate-spin mx-auto mb-4" />
             <p className="text-sm text-muted-foreground">Loading...</p>
           </div>
         }
