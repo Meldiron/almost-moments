@@ -26,6 +26,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import Image from "next/image";
 import { SEO } from "@/components/seo";
 import {
@@ -126,7 +132,7 @@ function formatRelativeExpiry(expiryAt: string): string {
 
 function computeExpiryDate(
   duration: string,
-  customDays: string,
+  customDate: Date | undefined,
 ): string | null {
   const now = new Date();
   switch (duration) {
@@ -145,10 +151,11 @@ function computeExpiryDate(
     case "forever":
       return null;
     case "custom": {
-      const days = parseInt(customDays, 10);
-      if (!days || days < 1) return null;
-      now.setDate(now.getDate() + days);
-      return now.toISOString();
+      if (!customDate) return null;
+      // Set to end of the selected day
+      const date = new Date(customDate);
+      date.setHours(23, 59, 59, 999);
+      return date.toISOString();
     }
     default:
       return null;
@@ -268,7 +275,7 @@ export default function DashboardPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [duration, setDuration] = useState("1-month");
-  const [customDays, setCustomDays] = useState("");
+  const [customDate, setCustomDate] = useState<Date | undefined>(undefined);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
 
@@ -495,7 +502,7 @@ export default function DashboardPage() {
     setName("");
     setDescription("");
     setDuration("1-month");
-    setCustomDays("");
+    setCustomDate(undefined);
     setError("");
   }
 
@@ -510,7 +517,7 @@ export default function DashboardPage() {
     setError("");
     setCreating(true);
     try {
-      const expiryAt = computeExpiryDate(duration, customDays);
+      const expiryAt = computeExpiryDate(duration, customDate);
       const gallery = await galleriesTable.create({
         name: name.trim(),
         description: description.trim() || null,
@@ -918,22 +925,42 @@ export default function DashboardPage() {
                     <SelectItem value="1-month">1 month</SelectItem>
                     <SelectItem value="1-year">1 year</SelectItem>
                     <SelectItem value="forever">Forever</SelectItem>
-                    <SelectItem value="custom">Custom</SelectItem>
+                    <SelectItem value="custom">Specific date</SelectItem>
                   </SelectContent>
                 </Select>
 
                 {duration === "custom" && (
-                  <div className="flex items-center gap-3 pt-1">
-                    <Input
-                      type="number"
-                      min="1"
-                      placeholder="30"
-                      className="rounded-xl h-9 w-28"
-                      value={customDays}
-                      onChange={(e) => setCustomDays(e.target.value)}
-                    />
-                    <span className="text-sm text-muted-foreground">days</span>
-                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="rounded-xl h-12 w-full justify-start text-left font-normal"
+                      >
+                        <CalendarDays className="size-4 mr-2 text-muted-foreground" />
+                        {customDate ? (
+                          customDate.toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })
+                        ) : (
+                          <span className="text-muted-foreground">
+                            Pick a date
+                          </span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={customDate}
+                        onSelect={setCustomDate}
+                        disabled={{ before: new Date() }}
+                        defaultMonth={customDate ?? new Date()}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 )}
 
                 <div className="flex gap-2.5 rounded-xl bg-muted/50 border border-border p-3 mt-2">
