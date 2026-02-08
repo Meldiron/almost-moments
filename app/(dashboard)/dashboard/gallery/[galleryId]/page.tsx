@@ -128,7 +128,8 @@ function computeExpiryDate(
     case "custom": {
       if (!customDate) return null;
       const date = new Date(customDate);
-      date.setHours(23, 59, 59, 999);
+      const now = new Date();
+      date.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), 0);
       return date.toISOString();
     }
     default:

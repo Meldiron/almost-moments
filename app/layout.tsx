@@ -70,7 +70,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon-192.png" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="theme-color" content="#a3e635" />
+        <meta name="theme-color" content="#fdba74" />
       </head>
       <body
         className={`${sora.variable} ${dmSans.variable} antialiased ${isDark ? "dark" : ""}`}

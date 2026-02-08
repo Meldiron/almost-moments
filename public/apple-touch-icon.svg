@@ -1,4 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 512 512" fill="none">
+  <!-- Background fill for apple touch icon (no transparency) -->
+  <rect width="512" height="512" fill="#fff7ed"/>
+
   <!-- Camera body — fills most of the canvas -->
   <rect x="32" y="152" width="448" height="328" rx="56" fill="#fdba74"/>
 

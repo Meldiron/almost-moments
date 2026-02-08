@@ -1,28 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
   <!-- Rounded square background -->
-  <rect width="512" height="512" rx="112" fill="#a3e635"/>
+  <rect width="512" height="512" rx="112" fill="#fdba74"/>
 
   <!-- Camera group, shifted up 28px to visually center -->
   <g transform="translate(0,-28)">
     <!-- Camera body -->
-    <rect x="128" y="208" width="256" height="192" rx="32" fill="#1a2e05"/>
+    <rect x="128" y="208" width="256" height="192" rx="32" fill="#431407"/>
 
     <!-- Camera top viewfinder bump -->
-    <rect x="200" y="168" width="112" height="56" rx="20" fill="#1a2e05"/>
+    <rect x="200" y="168" width="112" height="56" rx="20" fill="#431407"/>
 
     <!-- Lens outer ring -->
-    <circle cx="256" cy="304" r="72" fill="#1a2e05" stroke="#a3e635" stroke-width="14"/>
+    <circle cx="256" cy="304" r="72" fill="#431407" stroke="#fdba74" stroke-width="14"/>
 
     <!-- Lens middle ring -->
-    <circle cx="256" cy="304" r="48" fill="#2d4a0a"/>
+    <circle cx="256" cy="304" r="48" fill="#7c2d12"/>
 
     <!-- Lens inner highlight -->
-    <circle cx="256" cy="304" r="28" fill="#4a7c10"/>
+    <circle cx="256" cy="304" r="28" fill="#c2410c"/>
 
     <!-- Lens catch-light (small bright reflection) -->
-    <circle cx="240" cy="288" r="12" fill="#a3e635" opacity="0.6"/>
+    <circle cx="240" cy="288" r="12" fill="#fdba74" opacity="0.6"/>
 
     <!-- Flash dot -->
-    <circle cx="336" cy="232" r="12" fill="#a3e635" opacity="0.5"/>
+    <circle cx="336" cy="232" r="12" fill="#fdba74" opacity="0.5"/>
   </g>
 </svg>
