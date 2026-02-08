@@ -5,6 +5,7 @@ export type GalleriesCreate = {
   description?: string | null;
   expiryAt?: string | null;
   totalAssets: number;
+  coverFileId?: string | null;
 };
 
 export type Galleries = Models.Row & {
@@ -12,6 +13,7 @@ export type Galleries = Models.Row & {
   description?: string | null;
   expiryAt?: string | null;
   totalAssets: number;
+  coverFileId?: string | null;
 };
 
 export type GalleryAssetsCreate = {
@@ -140,6 +142,7 @@ export type DatabaseTableMap = {
           description?: string | null;
           expiryAt?: string | null;
           totalAssets: number;
+          coverFileId?: string | null;
         },
         options?: {
           rowId?: string;
@@ -172,6 +175,7 @@ export type DatabaseTableMap = {
           description?: string | null;
           expiryAt?: string | null;
           totalAssets: number;
+          coverFileId?: string | null;
         }>,
         options?: {
           permissions?: (

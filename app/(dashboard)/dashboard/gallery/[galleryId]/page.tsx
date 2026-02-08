@@ -74,7 +74,7 @@ import {
   type Galleries,
   type GalleryAssets,
 } from "@/lib/generated/appwrite";
-import { storage, account } from "@/lib/appwrite";
+import { storage, account, ID } from "@/lib/appwrite";
 import { getJwt } from "@/lib/jwt";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/lib/auth-context";
@@ -197,6 +197,33 @@ export default function GalleryManagePage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [editError, setEditError] = useState("");
   const editRef = useRef<HTMLDivElement>(null);
+
+  // ─── Cover upload state ─────────────────────────────────────
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
+  async function handleCoverSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !gallery) return;
+
+    setUploadingCover(true);
+    try {
+      const result = await storage.createFile({
+        bucketId: "gallery-covers",
+        fileId: ID.unique(),
+        file,
+      });
+      await galleriesTable.update(gallery.$id, { coverFileId: result.$id });
+      setGallery((prev) =>
+        prev ? { ...prev, coverFileId: result.$id } : prev,
+      );
+    } catch {
+      // Silently fail — user can retry
+    } finally {
+      setUploadingCover(false);
+    }
+  }
 
   // ─── ZIP state ──────────────────────────────────────────────
   const [zipGenerating, setZipGenerating] = useState(false);
@@ -720,6 +747,15 @@ export default function GalleryManagePage() {
     <div>
       <SEO title={gallery.name} />
 
+      {/* Hidden cover file input */}
+      <input
+        ref={coverInputRef}
+        type="file"
+        accept=".png,.jpg,.jpeg,.webp,.heic"
+        onChange={handleCoverSelected}
+        className="hidden"
+      />
+
       {/* Back link */}
       <button
         onClick={() => router.push("/dashboard")}
@@ -732,6 +768,32 @@ export default function GalleryManagePage() {
       {/* ─── Header ──────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={() => coverInputRef.current?.click()}
+            disabled={uploadingCover}
+            className="size-11 rounded-xl bg-muted flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-foreground/20 transition-all disabled:opacity-50 shrink-0"
+            title="Set cover image"
+          >
+            {uploadingCover ? (
+              <Loader2 className="size-5 text-muted-foreground animate-spin" />
+            ) : gallery.coverFileId ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={storage.getFilePreview({
+                  bucketId: "gallery-covers",
+                  fileId: gallery.coverFileId,
+                  width: 88,
+                  height: 88,
+                  quality: 80,
+                })}
+                alt=""
+                className="size-full object-cover"
+              />
+            ) : (
+              <Camera className="size-5 text-muted-foreground" />
+            )}
+          </button>
           <h1 className="font-sans text-2xl font-bold truncate">
             {gallery.name}
           </h1>

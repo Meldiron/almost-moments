@@ -783,13 +783,28 @@ export default function GalleryPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-3 min-w-0">
             <TransitionLink href="/" className="shrink-0">
-              <Image
-                src="/logo.svg"
-                alt="Almost Moments"
-                width={32}
-                height={32}
-                className="size-8 rounded-lg"
-              />
+              {gallery.coverFileId ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={storage.getFilePreview({
+                    bucketId: "gallery-covers",
+                    fileId: gallery.coverFileId,
+                    width: 64,
+                    height: 64,
+                    quality: 80,
+                  })}
+                  alt={gallery.name}
+                  className="size-8 rounded-lg object-cover"
+                />
+              ) : (
+                <Image
+                  src="/logo.svg"
+                  alt="Almost Moments"
+                  width={32}
+                  height={32}
+                  className="size-8 rounded-lg"
+                />
+              )}
             </TransitionLink>
             <span className="text-sm font-semibold text-foreground truncate">
               {gallery.name}

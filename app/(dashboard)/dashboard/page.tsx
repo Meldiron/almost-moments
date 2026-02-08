@@ -59,7 +59,7 @@ import {
 } from "lucide-react";
 import QRCode from "qrcode";
 import { databases, type Galleries } from "@/lib/generated/appwrite";
-import { account } from "@/lib/appwrite";
+import { account, storage, ID } from "@/lib/appwrite";
 import { useAuth } from "@/lib/auth-context";
 
 const PAGE_SIZE = 12;
@@ -245,6 +245,43 @@ export default function DashboardPage() {
 
   function openLink(galleryId: string) {
     window.open(getGalleryUrl(galleryId), "_blank");
+  }
+
+  // Cover upload state
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const coverTargetRef = useRef<string | null>(null);
+  const [uploadingCoverId, setUploadingCoverId] = useState<string | null>(null);
+
+  function triggerCoverUpload(galleryId: string) {
+    coverTargetRef.current = galleryId;
+    coverInputRef.current?.click();
+  }
+
+  async function handleCoverSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    const galleryId = coverTargetRef.current;
+    e.target.value = "";
+    if (!file || !galleryId) return;
+
+    setUploadingCoverId(galleryId);
+    try {
+      const result = await storage.createFile({
+        bucketId: "gallery-covers",
+        fileId: ID.unique(),
+        file,
+      });
+      await galleriesTable.update(galleryId, { coverFileId: result.$id });
+
+      // Update local state
+      const updateGallery = (g: Galleries) =>
+        g.$id === galleryId ? { ...g, coverFileId: result.$id } : g;
+      setGalleries((prev) => prev.map(updateGallery));
+      setFavouriteGalleries((prev) => prev.map(updateGallery));
+    } catch {
+      // Silently fail — user can retry
+    } finally {
+      setUploadingCoverId(null);
+    }
   }
 
   // Create modal state
@@ -535,6 +572,16 @@ export default function DashboardPage() {
   return (
     <div>
       <SEO title="My Galleries" />
+
+      {/* Hidden cover file input */}
+      <input
+        ref={coverInputRef}
+        type="file"
+        accept=".png,.jpg,.jpeg,.webp,.heic"
+        onChange={handleCoverSelected}
+        className="hidden"
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -699,12 +746,35 @@ export default function DashboardPage() {
                   key={gallery.$id}
                   className="group relative flex flex-col rounded-2xl border border-border bg-card p-5 transition-colors hover:border-foreground/20"
                 >
-                  {/* Icon + photo count + favourite */}
+                  {/* Cover + photo count + favourite */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="size-11 rounded-xl bg-muted flex items-center justify-center">
-                        <Camera className="size-5 text-muted-foreground" />
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => triggerCoverUpload(gallery.$id)}
+                        disabled={uploadingCoverId === gallery.$id}
+                        className="size-11 rounded-xl bg-muted flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-foreground/20 transition-all disabled:opacity-50"
+                        title="Set cover image"
+                      >
+                        {uploadingCoverId === gallery.$id ? (
+                          <Loader2 className="size-5 text-muted-foreground animate-spin" />
+                        ) : gallery.coverFileId ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={storage.getFilePreview({
+                              bucketId: "gallery-covers",
+                              fileId: gallery.coverFileId,
+                              width: 88,
+                              height: 88,
+                              quality: 80,
+                            })}
+                            alt=""
+                            className="size-full object-cover"
+                          />
+                        ) : (
+                          <Camera className="size-5 text-muted-foreground" />
+                        )}
+                      </button>
                       <div
                         className="flex items-center gap-1.5 text-sm text-muted-foreground"
                         title="Total memories"
