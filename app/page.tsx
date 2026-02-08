@@ -82,7 +82,7 @@ function AnimateIn({
 // ─── Navbar ─────────────────────────────────────────────────────
 function Navbar() {
   const { isDark, toggle } = useContext(ThemeContext);
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -144,14 +144,18 @@ function Navbar() {
             {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
 
-          <Link href={user ? "/dashboard" : "/sign-in"}>
-            <Button
-              size="sm"
-              className="hidden md:inline-flex rounded-full px-5 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold"
-            >
-              {user ? "My Galleries" : "Sign in"}
-            </Button>
-          </Link>
+          {loading ? (
+            <div className="hidden md:block h-8 w-24 rounded-full bg-secondary animate-pulse" />
+          ) : (
+            <Link href={user ? "/dashboard" : "/sign-in"}>
+              <Button
+                size="sm"
+                className="hidden md:inline-flex rounded-full px-5 bg-lime text-lime-foreground hover:bg-lime/90 font-semibold"
+              >
+                {user ? "My Galleries" : "Sign in"}
+              </Button>
+            </Link>
+          )}
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -190,11 +194,15 @@ function Navbar() {
           >
             FAQ
           </a>
-          <Link href={user ? "/dashboard" : "/sign-in"}>
-            <Button className="rounded-full bg-lime text-lime-foreground hover:bg-lime/90 font-semibold w-full">
-              {user ? "My Galleries" : "Sign in"}
-            </Button>
-          </Link>
+          {loading ? (
+            <div className="h-10 w-full rounded-full bg-secondary animate-pulse" />
+          ) : (
+            <Link href={user ? "/dashboard" : "/sign-in"}>
+              <Button className="rounded-full bg-lime text-lime-foreground hover:bg-lime/90 font-semibold w-full">
+                {user ? "My Galleries" : "Sign in"}
+              </Button>
+            </Link>
+          )}
         </div>
       )}
     </nav>
@@ -350,7 +358,7 @@ function GalleryScreen({ gallery }: { gallery: (typeof galleries)[number] }) {
 }
 
 function Hero() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [activeGallery, setActiveGallery] = useState(0);
   // "visible" = at rest, "out" = fading out (drifting up), "in" = fading in (rising from below)
   const [floatPhase, setFloatPhase] = useState<"visible" | "out" | "in">(
@@ -414,15 +422,19 @@ function Hero() {
         </p>
 
         <div className="animate-slide-up stagger-4 mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link href={user ? "/dashboard" : "/sign-in"}>
-            <Button
-              size="lg"
-              className="rounded-full px-8 h-13 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-semibold shadow-lg shadow-lime/20"
-            >
-              {user ? "My Galleries" : "Get Started"}
-              <ArrowRight className="size-4 ml-1" />
-            </Button>
-          </Link>
+          {loading ? (
+            <div className="h-13 w-40 rounded-full bg-secondary animate-pulse" />
+          ) : (
+            <Link href={user ? "/dashboard" : "/sign-in"}>
+              <Button
+                size="lg"
+                className="rounded-full px-8 h-13 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-semibold shadow-lg shadow-lime/20"
+              >
+                {user ? "My Galleries" : "Get Started"}
+                <ArrowRight className="size-4 ml-1" />
+              </Button>
+            </Link>
+          )}
           <Button
             variant="outline"
             size="lg"
@@ -1012,7 +1024,7 @@ function FAQ() {
 
 // ─── CTA ─────────────────────────────────────────────────────────
 function CTA() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   return (
     <section className="py-28 sm:py-36 relative overflow-hidden">
       <div className="absolute inset-0 bg-white dark:bg-black" />
@@ -1043,15 +1055,19 @@ function CTA() {
             card, no catch.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href={user ? "/dashboard" : "/sign-in"}>
-              <Button
-                size="lg"
-                className="rounded-full px-10 h-14 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-bold shadow-lg shadow-lime/25"
-              >
-                {user ? "My Galleries" : "Get Started — It\u2019s Free"}
-                <ChevronRight className="size-5 ml-1" />
-              </Button>
-            </Link>
+            {loading ? (
+              <div className="h-14 w-56 rounded-full bg-secondary animate-pulse" />
+            ) : (
+              <Link href={user ? "/dashboard" : "/sign-in"}>
+                <Button
+                  size="lg"
+                  className="rounded-full px-10 h-14 text-base bg-lime text-lime-foreground hover:bg-lime/90 font-bold shadow-lg shadow-lime/25"
+                >
+                  {user ? "My Galleries" : "Get Started — It\u2019s Free"}
+                  <ChevronRight className="size-5 ml-1" />
+                </Button>
+              </Link>
+            )}
           </div>
           <p className="mt-6 text-sm text-muted-foreground">
             No sign-up required to get started

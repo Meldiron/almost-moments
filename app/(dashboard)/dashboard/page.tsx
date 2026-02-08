@@ -40,7 +40,7 @@ import {
   Copy,
   ExternalLink,
   Check,
-  Eye,
+  Settings,
   Search,
   ArrowUpDown,
   X,
@@ -828,8 +828,8 @@ export default function DashboardPage() {
                         router.push(`/dashboard/gallery-${gallery.$id}`)
                       }
                     >
-                      <Eye className="size-4 mr-1.5" />
-                      View
+                      <Settings className="size-4 mr-1.5" />
+                      Manage
                     </Button>
                   </div>
                 </div>
