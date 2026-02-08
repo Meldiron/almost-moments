@@ -163,7 +163,7 @@ function computeExpiryDate(
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
   const router = useRouter();
 
   // Search, filter, sort state
@@ -221,6 +221,7 @@ export default function DashboardPage() {
         ...user?.prefs,
         favouriteGalleryIds: Array.from(next),
       });
+      await refresh();
     } catch {
       // Revert on failure
       setFavouriteIds(favouriteIds);
@@ -832,7 +833,7 @@ export default function DashboardPage() {
                       size="sm"
                       className="rounded-lg flex-1"
                       onClick={() =>
-                        router.push(`/dashboard/gallery-${gallery.$id}`)
+                        router.push(`/dashboard/gallery/${gallery.$id}`)
                       }
                     >
                       <Settings className="size-4 mr-1.5" />
@@ -1025,7 +1026,7 @@ export default function DashboardPage() {
             )}
           </div>
           <p className="text-center text-sm text-muted-foreground">
-            Guests can scan this code to open the gallery and upload photos.
+            Scan this code to upload and download photos.
           </p>
         </DialogContent>
       </Dialog>

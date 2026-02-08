@@ -1013,7 +1013,7 @@ export default function GalleryPage() {
             )}
           </div>
           <p className="text-center text-sm text-muted-foreground">
-            Guests can scan this code to open the gallery and upload photos.
+            Scan this code to upload and download photos.
           </p>
         </DialogContent>
       </Dialog>

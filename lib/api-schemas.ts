@@ -16,6 +16,11 @@ export const blurhashSchema = z
   .max(100)
   .regex(/^[0-9A-Za-z#$%*+,\-./:;=?@[\]^_{|}~]+$/);
 
+export const fileParamsSchema = z.object({
+  galleryId: appwriteIdSchema,
+  fileId: appwriteIdSchema,
+});
+
 export const filesBodySchema = z.object({
   fileId: appwriteIdSchema,
   blurhash: blurhashSchema,
