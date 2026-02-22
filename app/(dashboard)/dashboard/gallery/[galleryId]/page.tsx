@@ -238,6 +238,12 @@ export default function GalleryManagePage() {
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
+  // ─── Delete gallery state ─────────────────────────────────
+  const [deleteGalleryOpen, setDeleteGalleryOpen] = useState(false);
+  const [deletingGallery, setDeletingGallery] = useState(false);
+  const [deleteGalleryProgress, setDeleteGalleryProgress] = useState(0);
+  const [deleteGalleryStatus, setDeleteGalleryStatus] = useState("");
+
   // ─── Load gallery ──────────────────────────────────────────
   useEffect(() => {
     if (!galleryId) return;
@@ -523,6 +529,89 @@ export default function GalleryManagePage() {
     setSelectedIds(new Set());
     setBulkDeleting(false);
     setBulkDeleteOpen(false);
+  }
+
+  // ─── Delete gallery ─────────────────────────────────────────
+  async function confirmDeleteGallery() {
+    if (!gallery) return;
+    setDeletingGallery(true);
+    setDeleteGalleryProgress(0);
+    setDeleteGalleryStatus("Fetching files...");
+
+    try {
+      // 1. Fetch all gallery asset rows
+      const allAssets: GalleryAssets[] = [];
+      let cursor: string | null = null;
+      for (;;) {
+        const result = await galleryAssetsTable.list({
+          queries: (q) => {
+            const queries = [
+              q.equal("galleryId", galleryId),
+              q.orderDesc("$createdAt"),
+              q.limit(100),
+            ];
+            if (cursor) queries.push(q.cursorAfter(cursor));
+            return queries;
+          },
+        });
+        allAssets.push(...result.rows);
+        if (result.rows.length < 100) break;
+        cursor = result.rows[result.rows.length - 1].$id;
+      }
+
+      // 2. Delete storage files one by one with progress
+      const totalFiles = allAssets.length;
+      let deletedFiles = 0;
+
+      if (totalFiles > 0) {
+        setDeleteGalleryStatus(`Deleting files (0/${totalFiles})...`);
+        const limit = pLimit(5);
+
+        await Promise.all(
+          allAssets.map((asset) =>
+            limit(async () => {
+              try {
+                await storage.deleteFile({
+                  bucketId: "assets",
+                  fileId: asset.fileId,
+                });
+              } catch {
+                // File may already be gone — continue
+              }
+              deletedFiles++;
+              setDeleteGalleryProgress(
+                Math.round((deletedFiles / (totalFiles + 1)) * 100),
+              );
+              setDeleteGalleryStatus(
+                `Deleting files (${deletedFiles}/${totalFiles})...`,
+              );
+            }),
+          ),
+        );
+      }
+
+      // 3. Call API to bulk delete gallery-asset rows and gallery row
+      setDeleteGalleryStatus("Cleaning up...");
+      const jwt = await getJwt();
+      const res = await fetch(`/api/v1/galleries/${gallery.$id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${jwt}` },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete gallery");
+      }
+
+      setDeleteGalleryProgress(100);
+      setDeleteGalleryStatus("Deleted!");
+
+      // 4. Redirect to dashboard
+      router.push("/dashboard");
+    } catch {
+      setDeletingGallery(false);
+      setDeleteGalleryOpen(false);
+      setDeleteGalleryStatus("");
+    }
   }
 
   // ─── ZIP download ─────────────────────────────────────────
@@ -1099,6 +1188,29 @@ export default function GalleryManagePage() {
             </Button>
           </div>
         </form>
+
+        <div className="border-t border-border mt-6 pt-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-sm text-destructive">
+                Delete gallery
+              </p>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Permanently delete this gallery and all its files. This cannot
+                be undone.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 shrink-0"
+              onClick={() => setDeleteGalleryOpen(true)}
+            >
+              <Trash2 className="size-4 mr-1.5" />
+              Delete gallery
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* ─── File list ───────────────────────────────────────── */}
@@ -1387,6 +1499,64 @@ export default function GalleryManagePage() {
                 </>
               ) : (
                 `Delete ${selectedIds.size} file${selectedIds.size === 1 ? "" : "s"}`
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* ─── Delete gallery dialog ─────────────────────────────── */}
+      <AlertDialog
+        open={deleteGalleryOpen}
+        onOpenChange={(open) => {
+          if (!deletingGallery) setDeleteGalleryOpen(open);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this gallery?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete{" "}
+              <span className="font-semibold text-foreground">
+                {gallery.name}
+              </span>{" "}
+              and all {gallery.totalAssets} file
+              {gallery.totalAssets === 1 ? "" : "s"} in it. This action cannot
+              be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {deletingGallery && (
+            <div className="space-y-2 py-2">
+              <Progress value={deleteGalleryProgress} className="h-2" />
+              <p className="text-sm text-muted-foreground text-center">
+                {deleteGalleryStatus}
+              </p>
+            </div>
+          )}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className="rounded-xl"
+              disabled={deletingGallery}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={(e) => {
+                e.preventDefault();
+                confirmDeleteGallery();
+              }}
+              disabled={deletingGallery}
+            >
+              {deletingGallery ? (
+                <>
+                  <Loader2 className="size-4 mr-1.5 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete gallery"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
